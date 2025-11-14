@@ -1,3 +1,4 @@
 [
-    "invenio-xrootd"
+    "invenio-xrootd",
+    "invenio-swh"
 ]
