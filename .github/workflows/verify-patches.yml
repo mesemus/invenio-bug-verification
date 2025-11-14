@@ -176,7 +176,7 @@ jobs:
           echo "🧪 Running tests without patches"
           echo "::group::Test execution (before patches)"
           set +e
-          bash run-tests.sh 2>&1 | tee ../test-output-before.txt
+          echo bash run-tests.sh 2>&1 | tee ../test-output-before.txt
           TEST_EXIT_CODE=${PIPESTATUS[0]}
           set -e
           echo "::endgroup::"
@@ -264,7 +264,7 @@ jobs:
           echo "🧪 Running tests with patches applied"
           echo "::group::Test execution (after patches)"
           set +e
-          bash run-tests.sh 2>&1 | tee ../test-output-after.txt
+          echo bash run-tests.sh 2>&1 | tee ../test-output-after.txt
           TEST_EXIT_CODE=${PIPESTATUS[0]}
           set -e
           echo "::endgroup::"
@@ -410,329 +410,206 @@ jobs:
             fi
           fi
 
-  # generate-report:
-  #   name: Generate Summary Report
-  #   needs: test-packages
-  #   runs-on: ubuntu-latest
-  #   if: always()
+  generate-report:
+    name: Generate Summary Report
+    needs: test-packages
+    runs-on: ubuntu-latest
+    if: always()
 
-  #   steps:
-  #     - name: Download all artifacts
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         path: artifacts
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
 
-  #     - name: Generate summary report
-  #       run: |
-  #         echo "# Invenio Patch Verification Report" > report.md
-  #         echo "" >> report.md
-  #         echo "Generated on: $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> report.md
-  #         echo "" >> report.md
+      - name: Generate summary report
+        run: |
+          mkdir -p report
 
-  #         # Initialize counters
-  #         TOTAL=0
-  #         FIXED=0
-  #         REGRESSION=0
-  #         NO_CHANGE=0
-  #         STILL_FAILING=0
-  #         NO_PATCH=0
+          # Generate README.md with summary
+          echo "# Invenio Bugfix Verification Results" > report/README.md
+          echo "" >> report/README.md
+          echo "_Last updated: $(date -u +"%Y-%m-%d %H:%M:%S UTC")_" >> report/README.md
+          echo "" >> report/README.md
 
-  #         # Process each package result
-  #         echo "## Test Results" >> report.md
-  #         echo "" >> report.md
-  #         echo "| Package | Patch Applied | Result | Before | After |" >> report.md
-  #         echo "|---------|---------------|--------|--------|-------|" >> report.md
+          # Calculate overall statistics
+          TOTAL=0
+          PATCHED=0
+          UNPATCHED=0
+          FIXED=0
+          REGRESSION=0
+          NO_CHANGE=0
+          STILL_FAILING=0
+          SUCCESS_BEFORE=0
+          FAILED_BEFORE=0
+          SUCCESS_AFTER=0
+          FAILED_AFTER=0
 
-  #         for dir in artifacts/test-results-*/; do
-  #           if [ -f "$dir/result-summary.json" ]; then
-  #             TOTAL=$((TOTAL + 1))
+          for dir in artifacts/test-results-*/; do
+            if [ -f "$dir/result-summary.json" ]; then
+              TOTAL=$((TOTAL + 1))
+              APPLIES=$(jq -r '.patch_applies' "$dir/result-summary.json")
+              
+              if [ "$APPLIES" = "true" ]; then
+                PATCHED=$((PATCHED + 1))
+                RESULT=$(jq -r '.result' "$dir/result-summary.json")
+                case $RESULT in
+                  fixed) FIXED=$((FIXED + 1)) ;;
+                  regression) REGRESSION=$((REGRESSION + 1)) ;;
+                  still-failing) STILL_FAILING=$((STILL_FAILING + 1)) ;;
+                  *) NO_CHANGE=$((NO_CHANGE + 1)) ;;
+                esac
+                
+                BEFORE=$(jq -r '.before_status' "$dir/result-summary.json")
+                AFTER=$(jq -r '.after_status' "$dir/result-summary.json")
+                [ "$BEFORE" = "success" ] && SUCCESS_BEFORE=$((SUCCESS_BEFORE + 1))
+                [ "$BEFORE" = "failed" ] && FAILED_BEFORE=$((FAILED_BEFORE + 1))
+                [ "$AFTER" = "success" ] && SUCCESS_AFTER=$((SUCCESS_AFTER + 1))
+                [ "$AFTER" = "failed" ] && FAILED_AFTER=$((FAILED_AFTER + 1))
+              else
+                UNPATCHED=$((UNPATCHED + 1))
+                BEFORE=$(jq -r '.before_status' "$dir/result-summary.json")
+                [ "$BEFORE" = "success" ] && SUCCESS_BEFORE=$((SUCCESS_BEFORE + 1))
+                [ "$BEFORE" = "failed" ] && FAILED_BEFORE=$((FAILED_BEFORE + 1))
+              fi
+            fi
+          done
 
-  #             PACKAGE=$(jq -r '.package' "$dir/result-summary.json")
-  #             APPLIES=$(jq -r '.patch_applies' "$dir/result-summary.json")
+          # Overall Status
+          echo "## 📊 Overall Status" >> report/README.md
+          echo "" >> report/README.md
+          echo "| Metric | Count |" >> report/README.md
+          echo "|--------|-------|" >> report/README.md
+          echo "| **Total Packages** | $TOTAL |" >> report/README.md
+          echo "| **Patched Packages** | $PATCHED |" >> report/README.md
+          echo "| **Unpatched Packages** | $UNPATCHED |" >> report/README.md
+          echo "" >> report/README.md
+          echo "### Patch Results" >> report/README.md
+          echo "| Result | Count |" >> report/README.md
+          echo "|--------|-------|" >> report/README.md
+          echo "| ✅ Fixed | $FIXED |" >> report/README.md
+          echo "| ❌ Regressions | $REGRESSION |" >> report/README.md
+          echo "| ⚠️  Still Failing | $STILL_FAILING |" >> report/README.md
+          echo "| ℹ️  No Change | $NO_CHANGE |" >> report/README.md
+          echo "" >> report/README.md
 
-  #             if [ "$APPLIES" = "true" ]; then
-  #               RESULT=$(jq -r '.result' "$dir/result-summary.json")
-  #               BEFORE=$(jq -r '.before_status' "$dir/result-summary.json")
-  #               AFTER=$(jq -r '.after_status' "$dir/result-summary.json")
+          # List of patches
+          echo "## 🔧 Configured Patches" >> report/README.md
+          echo "" >> report/README.md
 
-  #               case $RESULT in
-  #                 fixed)
-  #                   FIXED=$((FIXED + 1))
-  #                   EMOJI="✅"
-  #                   ;;
-  #                 regression)
-  #                   REGRESSION=$((REGRESSION + 1))
-  #                   EMOJI="❌"
-  #                   ;;
-  #                 still-failing)
-  #                   STILL_FAILING=$((STILL_FAILING + 1))
-  #                   EMOJI="⚠️ "
-  #                   ;;
-  #                 *)
-  #                   NO_CHANGE=$((NO_CHANGE + 1))
-  #                   EMOJI="ℹ️ "
-  #                   ;;
-  #               esac
+          # Extract unique patches from all result files
+          PATCHES_FOUND=false
+          declare -A PATCH_LIST
+          for dir in artifacts/test-results-*/; do
+            if [ -f "$dir/result-summary.json" ]; then
+              APPLIES=$(jq -r '.patch_applies' "$dir/result-summary.json")
+              if [ "$APPLIES" = "true" ]; then
+                PATCHED_PKGS=$(jq -r '.patched_packages' "$dir/result-summary.json")
+                if [ -n "$PATCHED_PKGS" ] && [ "$PATCHED_PKGS" != "null" ]; then
+                  PATCHES_FOUND=true
+                  for pkg in $PATCHED_PKGS; do
+                    PATCH_LIST[$pkg]=1
+                  done
+                fi
+              fi
+            fi
+          done
 
-  #               echo "| \`$PACKAGE\` | Yes | $EMOJI $RESULT | $BEFORE | $AFTER |" >> report.md
-  #             else
-  #               NO_PATCH=$((NO_PATCH + 1))
-  #               REASON=$(jq -r '.reason // "N/A"' "$dir/result-summary.json")
-  #               BEFORE=$(jq -r '.before_status' "$dir/result-summary.json")
-  #               echo "| \`$PACKAGE\` | No | N/A ($REASON) | $BEFORE | - |" >> report.md
-  #             fi
-  #           fi
-  #         done
+          if [ "$PATCHES_FOUND" = "true" ]; then
+            echo "| Package | Status |" >> report/README.md
+            echo "|---------|--------|" >> report/README.md
+            for pkg in "${!PATCH_LIST[@]}"; do
+              echo "| \`$pkg\` | Configured |" >> report/README.md
+            done
+          else
+            echo "_No patches configured._" >> report/README.md
+          fi
+          echo "" >> report/README.md
 
-  #         echo "" >> report.md
-  #         echo "## Summary Statistics" >> report.md
-  #         echo "" >> report.md
-  #         echo "- **Total packages tested:** $TOTAL" >> report.md
-  #         echo "- **Patches applied:** $((TOTAL - NO_PATCH))" >> report.md
-  #         echo "- **No patch applicable:** $NO_PATCH" >> report.md
-  #         echo "" >> report.md
-  #         echo "### Results for patched packages:" >> report.md
-  #         echo "- ✅ **Fixed:** $FIXED" >> report.md
-  #         echo "- ❌ **Regressions:** $REGRESSION" >> report.md
-  #         echo "- ⚠️  **Still failing:** $STILL_FAILING" >> report.md
-  #         echo "- ℹ️  **No change:** $NO_CHANGE" >> report.md
+          # Unpatched packages
+          echo "## 📦 Unpatched Packages" >> report/README.md
+          echo "" >> report/README.md
+          echo "| Package | Build Status |" >> report/README.md
+          echo "|---------|--------------|" >> report/README.md
 
-  #         cat report.md
+          for dir in artifacts/test-results-*/; do
+            if [ -f "$dir/result-summary.json" ]; then
+              APPLIES=$(jq -r '.patch_applies' "$dir/result-summary.json")
+              if [ "$APPLIES" != "true" ]; then
+                PACKAGE=$(jq -r '.package' "$dir/result-summary.json")
+                BEFORE=$(jq -r '.before_status' "$dir/result-summary.json")
+                
+                case $BEFORE in
+                  success) STATUS="✅ Success" ;;
+                  failed) STATUS="❌ Failed" ;;
+                  skipped) STATUS="⏭️  Skipped" ;;
+                  *) STATUS="❓ Unknown" ;;
+                esac
+                
+                echo "| \`$PACKAGE\` | $STATUS |" >> report/README.md
+              fi
+            fi
+          done
+          echo "" >> report/README.md
 
-  #     - name: Upload summary report
-  #       uses: actions/upload-artifact@v4
-  #       with:
-  #         name: verification-report
-  #         path: report.md
-  #         retention-days: 90
+          # Patched packages
+          echo "## 🔄 Patched Packages" >> report/README.md
+          echo "" >> report/README.md
+          echo "| Package | Patches Applied | Before | After | Result |" >> report/README.md
+          echo "|---------|----------------|--------|-------|--------|" >> report/README.md
 
-  #     - name: Add report to job summary
-  #       run: |
-  #         cat report.md >> $GITHUB_STEP_SUMMARY
+          for dir in artifacts/test-results-*/; do
+            if [ -f "$dir/result-summary.json" ]; then
+              APPLIES=$(jq -r '.patch_applies' "$dir/result-summary.json")
+              if [ "$APPLIES" = "true" ]; then
+                PACKAGE=$(jq -r '.package' "$dir/result-summary.json")
+                PATCHED_PKGS=$(jq -r '.patched_packages' "$dir/result-summary.json" | tr '\n' ' ')
+                BEFORE=$(jq -r '.before_status' "$dir/result-summary.json")
+                AFTER=$(jq -r '.after_status' "$dir/result-summary.json")
+                RESULT_ICON=$(jq -r '.result_icon' "$dir/result-summary.json")
+                RESULT_TEXT=$(jq -r '.result_text' "$dir/result-summary.json")
+                
+                # Format status
+                case $BEFORE in
+                  success) BEFORE_STATUS="✅ Pass" ;;
+                  failed) BEFORE_STATUS="❌ Fail" ;;
+                  skipped) BEFORE_STATUS="⏭️  Skip" ;;
+                  *) BEFORE_STATUS="❓ Unknown" ;;
+                esac
+                
+                case $AFTER in
+                  success) AFTER_STATUS="✅ Pass" ;;
+                  failed) AFTER_STATUS="❌ Fail" ;;
+                  skipped) AFTER_STATUS="⏭️  Skip" ;;
+                  *) AFTER_STATUS="❓ Unknown" ;;
+                esac
+                
+                # Use result_icon and result_text from artifacts
+                if [ -n "$RESULT_ICON" ] && [ "$RESULT_ICON" != "null" ]; then
+                  RESULT_STATUS="$RESULT_ICON $RESULT_TEXT"
+                else
+                  RESULT_STATUS="❓ Unknown"
+                fi
+                
+                echo "| \`$PACKAGE\` | $PATCHED_PKGS | $BEFORE_STATUS | $AFTER_STATUS | $RESULT_STATUS |" >> report/README.md
+              fi
+            fi
+          done
+          echo "" >> report/README.md
 
-  #     - name: Prepare GitHub Pages content
-  #       run: |
-  #         mkdir -p gh-pages
+          echo "---" >> report/README.md
+          echo "" >> report/README.md
+          echo "_For detailed test outputs and diffs, see the [full report](https://mesemus.github.io/invenio-bug-verification/)._" >> report/README.md
 
-  #         # Convert markdown report to HTML
-  #         cat > gh-pages/index.html << 'HTMLEOF'
-  #         <!DOCTYPE html>
-  #         <html lang="en">
-  #         <head>
-  #           <meta charset="UTF-8">
-  #           <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  #           <title>Invenio Patch Verification Report</title>
-  #           <style>
-  #             body {
-  #               font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
-  #               line-height: 1.6;
-  #               max-width: 1200px;
-  #               margin: 0 auto;
-  #               padding: 20px;
-  #               background-color: #f6f8fa;
-  #             }
-  #             h1, h2, h3 { color: #24292e; }
-  #             table {
-  #               width: 100%;
-  #               border-collapse: collapse;
-  #               background-color: white;
-  #               box-shadow: 0 1px 3px rgba(0,0,0,0.12);
-  #               margin: 20px 0;
-  #             }
-  #             th, td {
-  #               padding: 12px;
-  #               text-align: left;
-  #               border-bottom: 1px solid #e1e4e8;
-  #             }
-  #             th {
-  #               background-color: #f6f8fa;
-  #               font-weight: 600;
-  #             }
-  #             tr:hover { background-color: #f6f8fa; }
-  #             code {
-  #               background-color: #f6f8fa;
-  #               padding: 2px 6px;
-  #               border-radius: 3px;
-  #               font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-  #               font-size: 85%;
-  #             }
-  #             .package-list {
-  #               list-style: none;
-  #               padding: 0;
-  #             }
-  #             .package-item {
-  #               background: white;
-  #               margin: 10px 0;
-  #               padding: 15px;
-  #               border-radius: 6px;
-  #               box-shadow: 0 1px 3px rgba(0,0,0,0.12);
-  #             }
-  #             .package-item h3 {
-  #               margin-top: 0;
-  #               margin-bottom: 10px;
-  #             }
-  #             .test-output {
-  #               margin-top: 10px;
-  #             }
-  #             .test-output a {
-  #               display: inline-block;
-  #               margin-right: 15px;
-  #               color: #0366d6;
-  #               text-decoration: none;
-  #             }
-  #             .test-output a:hover {
-  #               text-decoration: underline;
-  #             }
-  #             .stats {
-  #               background: white;
-  #               padding: 20px;
-  #               border-radius: 6px;
-  #               box-shadow: 0 1px 3px rgba(0,0,0,0.12);
-  #               margin: 20px 0;
-  #             }
-  #             .stats ul {
-  #               list-style: none;
-  #               padding: 0;
-  #             }
-  #             .stats li {
-  #               padding: 5px 0;
-  #             }
-  #           </style>
-  #         </head>
-  #         <body>
-  #         HTMLEOF
+          cat report/README.md
 
-  #         # Convert markdown to HTML (simple conversion)
-  #         sed '1d' report.md | while IFS= read -r line; do
-  #           if [[ $line =~ ^#\ (.+)$ ]]; then
-  #             echo "<h1>${BASH_REMATCH[1]}</h1>" >> gh-pages/index.html
-  #           elif [[ $line =~ ^##\ (.+)$ ]]; then
-  #             echo "<h2>${BASH_REMATCH[1]}</h2>" >> gh-pages/index.html
-  #           elif [[ $line =~ ^###\ (.+)$ ]]; then
-  #             echo "<h3>${BASH_REMATCH[1]}</h3>" >> gh-pages/index.html
-  #           elif [[ $line =~ ^\|.*\|$ ]]; then
-  #             echo "$line" >> gh-pages/table.tmp
-  #           elif [[ $line =~ ^-\ (.+)$ ]]; then
-  #             echo "<li>${BASH_REMATCH[1]}</li>" >> gh-pages/index.html
-  #           elif [[ -z $line ]]; then
-  #             if [ -f gh-pages/table.tmp ]; then
-  #               echo "<table>" >> gh-pages/index.html
-  #               first=true
-  #               while IFS= read -r tline; do
-  #                 if [[ $tline =~ ^\|-+\|.*$ ]]; then
-  #                   continue
-  #                 fi
-  #                 if $first; then
-  #                   echo "<thead><tr>" >> gh-pages/index.html
-  #                   echo "$tline" | sed 's/|/<\/th><th>/g' | sed 's/<\/th><th>//' | sed 's/<\/th><th>$//' | sed 's/^/<th>/' | sed 's/$/<\/th>/' >> gh-pages/index.html
-  #                   echo "</tr></thead><tbody>" >> gh-pages/index.html
-  #                   first=false
-  #                 else
-  #                   echo "<tr>" >> gh-pages/index.html
-  #                   echo "$tline" | sed 's/|/<\/td><td>/g' | sed 's/<\/td><td>//' | sed 's/<\/td><td>$//' | sed 's/^/<td>/' | sed 's/$/<\/td>/' >> gh-pages/index.html
-  #                   echo "</tr>" >> gh-pages/index.html
-  #                 fi
-  #               done < gh-pages/table.tmp
-  #               echo "</tbody></table>" >> gh-pages/index.html
-  #               rm gh-pages/table.tmp
-  #             fi
-  #             echo "<p>$line</p>" >> gh-pages/index.html
-  #           else
-  #             echo "<p>$line</p>" >> gh-pages/index.html
-  #           fi
-  #         done
+      - name: Upload README as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: verification-readme
+          path: report/README.md
+          retention-days: 90
 
-  #         # Close any open table
-  #         if [ -f gh-pages/table.tmp ]; then
-  #           echo "<table>" >> gh-pages/index.html
-  #           first=true
-  #           while IFS= read -r tline; do
-  #             if [[ $tline =~ ^\|-+\|.*$ ]]; then
-  #               continue
-  #             fi
-  #             if $first; then
-  #               echo "<thead><tr>" >> gh-pages/index.html
-  #               echo "$tline" | sed 's/|/<\/th><th>/g' | sed 's/<\/th><th>//' | sed 's/<\/th><th>$//' | sed 's/^/<th>/' | sed 's/$/<\/th>/' >> gh-pages/index.html
-  #               echo "</tr></thead><tbody>" >> gh-pages/index.html
-  #               first=false
-  #             else
-  #               echo "<tr>" >> gh-pages/index.html
-  #               echo "$tline" | sed 's/|/<\/td><td>/g' | sed 's/<\/td><td>//' | sed 's/<\/td><td>$//' | sed 's/^/<td>/' | sed 's/$/<\/td>/' >> gh-pages/index.html
-  #               echo "</tr>" >> gh-pages/index.html
-  #             fi
-  #           done < gh-pages/table.tmp
-  #           echo "</tbody></table>" >> gh-pages/index.html
-  #           rm gh-pages/table.tmp
-  #         fi
-
-  #         # Add detailed package results section
-  #         echo "<h2>Detailed Test Outputs</h2>" >> gh-pages/index.html
-  #         echo "<div class='package-list'>" >> gh-pages/index.html
-
-  #         for dir in artifacts/test-results-*/; do
-  #           if [ -f "$dir/result-summary.json" ]; then
-  #             PACKAGE=$(jq -r '.package' "$dir/result-summary.json")
-  #             APPLIES=$(jq -r '.patch_applies' "$dir/result-summary.json")
-
-  #             # Create package directory
-  #             mkdir -p "gh-pages/packages/$PACKAGE"
-
-  #             # Copy test outputs only if they exist
-  #             if [ -f "$dir/test-output-before.txt" ]; then
-  #               cp "$dir/test-output-before.txt" "gh-pages/packages/$PACKAGE/"
-  #             fi
-  #             if [ -f "$dir/test-output-after.txt" ]; then
-  #               cp "$dir/test-output-after.txt" "gh-pages/packages/$PACKAGE/"
-  #             fi
-  #             if [ -f "$dir/test-diff.txt" ]; then
-  #               cp "$dir/test-diff.txt" "gh-pages/packages/$PACKAGE/"
-  #             fi
-
-  #             # Add to index
-  #             echo "<div class='package-item'>" >> gh-pages/index.html
-  #             echo "<h3>$PACKAGE</h3>" >> gh-pages/index.html
-
-  #             if [ "$APPLIES" = "true" ]; then
-  #               RESULT=$(jq -r '.result' "$dir/result-summary.json")
-  #               echo "<p><strong>Result:</strong> $RESULT</p>" >> gh-pages/index.html
-  #               echo "<div class='test-output'>" >> gh-pages/index.html
-
-  #               # Only add links for files that exist
-  #               if [ -f "gh-pages/packages/$PACKAGE/test-output-before.txt" ]; then
-  #                 echo "<a href='packages/$PACKAGE/test-output-before.txt'>Test Output (Before Patch)</a>" >> gh-pages/index.html
-  #               fi
-  #               if [ -f "gh-pages/packages/$PACKAGE/test-output-after.txt" ]; then
-  #                 echo "<a href='packages/$PACKAGE/test-output-after.txt'>Test Output (After Patch)</a>" >> gh-pages/index.html
-  #               fi
-  #               if [ -f "gh-pages/packages/$PACKAGE/test-diff.txt" ]; then
-  #                 echo "<a href='packages/$PACKAGE/test-diff.txt'>Diff</a>" >> gh-pages/index.html
-  #               fi
-
-  #               echo "</div>" >> gh-pages/index.html
-  #             else
-  #               REASON=$(jq -r '.reason // "N/A"' "$dir/result-summary.json")
-  #               echo "<p><strong>Status:</strong> No patch applied ($REASON)</p>" >> gh-pages/index.html
-  #               echo "<div class='test-output'>" >> gh-pages/index.html
-
-  #               # Only add link if file exists
-  #               if [ -f "gh-pages/packages/$PACKAGE/test-output-before.txt" ]; then
-  #                 echo "<a href='packages/$PACKAGE/test-output-before.txt'>Test Output</a>" >> gh-pages/index.html
-  #               fi
-
-  #               echo "</div>" >> gh-pages/index.html
-  #             fi
-
-  #             echo "</div>" >> gh-pages/index.html
-  #           fi
-  #         done
-
-  #         echo "</div>" >> gh-pages/index.html
-  #         echo "</body></html>" >> gh-pages/index.html
-
-  #     - name: Deploy to GitHub Pages
-  #       uses: peaceiris/actions-gh-pages@v4
-  #       with:
-  #         github_token: ${{ secrets.GITHUB_TOKEN }}
-  #         publish_dir: ./gh-pages
-  #         publish_branch: gh-pages
-  #         force_orphan: true
+      - name: Add README to job summary
+        run: |
+          cat report/README.md >> $GITHUB_STEP_SUMMARY
