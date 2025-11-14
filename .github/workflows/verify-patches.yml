@@ -348,11 +348,17 @@ jobs:
           BEFORE_STATUS=$(cat test-output-before-status.txt || echo "skipped")
           AFTER_STATUS=$(cat test-output-after-status.txt || echo "skipped")
 
+          if [ -z "${{ steps.check-patch.outputs.applies }}" ] ; then
+            APPLIES="false"
+          else
+            APPLIES="${{ steps.check-patch.outputs.applies }}"
+          fi
+
           cat > result-summary.json << EOF
           {
             "package": "${{ matrix.package }}",
             "has_patch": ${{ steps.load-patches.outputs.has_patch }},
-            "patch_applies": ${{ steps.check-patch.outputs.applies }},
+            "patch_applies": $APPLIES,
             "before_status": "$BEFORE_STATUS",
             "after_status": "$AFTER_STATUS",
             "result": "${{ steps.compare.outputs.result }}",
