@@ -615,7 +615,7 @@ jobs:
           done
           echo "" >> report/README.md
 
-          # Unpatched packages
+          # Packages that do not depend on patched packages
           echo "## 📦 Unpatched Packages" >> report/README.md
           echo "" >> report/README.md
           echo "| Package | Build Status |" >> report/README.md
@@ -655,7 +655,7 @@ jobs:
           done
           echo "" >> report/README.md
 
-          # Patched packages
+          # Packages that depend on patched packages
           echo "## 🔄 Patched Packages" >> report/README.md
           echo "" >> report/README.md
           echo "| Package | Patches Applied | Before | After | Result |" >> report/README.md
@@ -746,6 +746,7 @@ jobs:
             report/README.md
 
       - run: cp -rf report/* ./dist/
+      - run: mv ./dist/report/index.html ./dist/index.html
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
