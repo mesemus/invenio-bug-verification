@@ -1,0 +1,6 @@
+{
+    "invenio-db": {
+        "url": "https://github.com/oarepo/invenio-db.git",
+        "branch": "nested-db-session-fix"
+    }
+}
