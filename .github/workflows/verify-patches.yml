@@ -417,18 +417,18 @@ jobs:
             exit 1
           fi
 
-          # Fail if tests actually failed (as opposed to passing or being skipped)
-          BEFORE_STATUS=$(cat test-output-before-status.txt 2>/dev/null || echo "missing")
-          if [ "$BEFORE_STATUS" = "failed" ]; then
-            echo "Error: Tests failed before applying patches"
-            exit 1
-          fi
-
           # If patches were applied, also check after status
           if [ -f test-output-after-status.txt ]; then
             AFTER_STATUS=$(cat test-output-after-status.txt)
             if [ "$AFTER_STATUS" = "failed" ]; then
               echo "Error: Tests failed after applying patches"
+              exit 1
+            fi
+          else
+            # Fail if tests actually failed (as opposed to passing or being skipped)
+            BEFORE_STATUS=$(cat test-output-before-status.txt 2>/dev/null || echo "missing")
+            if [ "$BEFORE_STATUS" = "failed" ]; then
+              echo "Error: Tests failed before applying patches"
               exit 1
             fi
           fi
