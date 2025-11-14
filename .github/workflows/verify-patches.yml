@@ -91,13 +91,13 @@ jobs:
           echo "::endgroup::"
           echo "✓ uv installed successfully"
 
-      - name: Install libxml2-dev
-        run: |
-          echo "::group::Installing system dependencies"
-          sudo apt-get update
-          sudo apt-get install -y libxml2-dev libxslt-dev
-          echo "::endgroup::"
-          echo "✓ System dependencies installed"
+      # - name: Install libxml2-dev
+      #   run: |
+      #     echo "::group::Installing system dependencies"
+      #     sudo apt-get update
+      #     sudo apt-get install -y libxml2-dev libxslt-dev
+      #     echo "::endgroup::"
+      #     echo "✓ System dependencies installed"
 
       - name: Load patches configuration
         id: load-patches
@@ -738,6 +738,18 @@ jobs:
 
           cat report/README.md
 
+      - name: Convert markdown to HTML
+        uses: wranders/markdown-to-pages-action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          files: |-
+            report/README.md
+
+      - run: cp report/* ./dist/
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
       - name: Upload README as artifact
         uses: actions/upload-artifact@v4
         with:
@@ -748,3 +760,16 @@ jobs:
       - name: Add README to job summary
         run: |
           cat report/README.md >> $GITHUB_STEP_SUMMARY
+
+  deploy:
+    needs: generate-report
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/deploy-pages@v4
+        id: deployment
