@@ -171,8 +171,6 @@ jobs:
       - name: Apply patches
         if: steps.check-patch.outputs.applies == 'true'
         run: |
-          cd verification-repo
-
           # For each package in patches.json that's installed in the venv
           for pkg in ${{ steps.check-patch.outputs.patched_packages }}; do
             PATCH_URL=$(jq -r ".\"$pkg\".url" patches.json)
@@ -184,9 +182,9 @@ jobs:
             git clone --depth 1 --branch "$PATCH_BRANCH" "$PATCH_URL" "patched-$pkg"
             
             # Install it in the venv
-            cd "patched-$pkg"
-            source ../package-repo/.venv/bin/activate
-            uv pip install -e . --force-reinstall --no-deps
+            cd package-repo
+            source .venv/bin/activate
+            uv pip install "../patched-$pkg" --force-reinstall --no-deps
             cd ..
           done
 
