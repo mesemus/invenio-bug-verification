@@ -57,109 +57,112 @@ jobs:
           echo "Found packages: $PACKAGES"
           echo "packages=$PACKAGES" >> $GITHUB_OUTPUT
 
-  # test-packages:
-  #   name: Test ${{ matrix.package }}
-  #   needs: extract-packages
-  #   runs-on: ubuntu-latest
-  #   env:
-  #     SO_FAR_OK: 1
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       package: ${{ fromJson(needs.extract-packages.outputs.packages) }}
+  test-packages:
+    name: Test ${{ matrix.package }}
+    needs: extract-packages
+    runs-on: ubuntu-latest
+    env:
+      SO_FAR_OK: 1
+    strategy:
+      fail-fast: false
+      matrix:
+        package: ${{ fromJson(needs.extract-packages.outputs.packages) }}
 
-  #   steps:
-  #     - name: Checkout verification repository
-  #       uses: actions/checkout@v4
-  #       with:
-  #         path: verification-repo
+    steps:
+      - name: Checkout verification repository
+        uses: actions/checkout@v4
+        with:
+          path: verification-repo
 
-  #     - name: Setup Python
-  #       uses: actions/setup-python@v5
-  #       with:
-  #         python-version: ${{ env.PYTHON_VERSION }}
+      - name: Store verification repository path
+        run: |
+          echo "VERIFICATION_REPO_PATH=$PWD/verification-repo" >> $GITHUB_ENV
 
-  #     - name: Install uv
-  #       run: |
-  #         echo "::group::Installing uv"
-  #         curl -LsSf https://astral.sh/uv/install.sh | sh
-  #         echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-  #         echo "::endgroup::"
-  #         echo "✓ uv installed successfully"
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
 
-  #     - name: Install libxml2-dev
-  #       run: |
-  #         echo "::group::Installing system dependencies"
-  #         sudo apt-get update
-  #         sudo apt-get install -y libxml2-dev libxslt-dev
-  #         echo "::endgroup::"
-  #         echo "✓ System dependencies installed"
+      - name: Install uv
+        run: |
+          echo "::group::Installing uv"
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+          echo "::endgroup::"
+          echo "✓ uv installed successfully"
 
-  #     - name: Load patches configuration
-  #       id: load-patches
-  #       run: |
-  #         cd verification-repo
+      - name: Install libxml2-dev
+        run: |
+          echo "::group::Installing system dependencies"
+          sudo apt-get update
+          sudo apt-get install -y libxml2-dev libxslt-dev
+          echo "::endgroup::"
+          echo "✓ System dependencies installed"
 
-  #         echo "SO_FAR_OK=0" >> $GITHUB_ENV
+      - name: Load patches configuration
+        id: load-patches
+        run: |
+          cd ${VERIFICATION_REPO_PATH}
 
-  #         PATCH_URL=$(jq -r '.["${{ matrix.package }}"].url // empty' patches.json)
-  #         PATCH_BRANCH=$(jq -r '.["${{ matrix.package }}"].branch // empty' patches.json)
+          echo "SO_FAR_OK=0" >> $GITHUB_ENV
 
-  #         echo "patch_url=$PATCH_URL" >> $GITHUB_OUTPUT
-  #         echo "patch_branch=$PATCH_BRANCH" >> $GITHUB_OUTPUT
+          PATCH_URL=$(jq -r '.["${{ matrix.package }}"].url // empty' patches.json)
+          PATCH_BRANCH=$(jq -r '.["${{ matrix.package }}"].branch // empty' patches.json)
 
-  #         if [ -n "$PATCH_URL" ]; then
-  #           echo "has_patch=true" >> $GITHUB_OUTPUT
-  #           echo "Found patch for ${{ matrix.package }}: $PATCH_URL @ $PATCH_BRANCH"
-  #         else
-  #           echo "has_patch=false" >> $GITHUB_OUTPUT
-  #           echo "No patch configured for ${{ matrix.package }}"
-  #         fi
-  #         echo "SO_FAR_OK=1" >> $GITHUB_ENV
+          echo "patch_url=$PATCH_URL" >> $GITHUB_OUTPUT
+          echo "patch_branch=$PATCH_BRANCH" >> $GITHUB_OUTPUT
 
-  #     - name: Clone package repository
-  #       continue-on-error: true
-  #       if: env.SO_FAR_OK == '1'
-  #       run: |
-  #         echo "SO_FAR_OK=0" >> $GITHUB_ENV
-  #         if [ "${{ steps.load-patches.outputs.has_patch }}" = "true" ]; then
-  #           echo "📦 Cloning from patch repository: ${{ steps.load-patches.outputs.patch_url }} @ ${{ steps.load-patches.outputs.patch_branch }}"
-  #           echo "::group::Cloning package repository"
-  #           git clone --depth 1 --branch ${{ steps.load-patches.outputs.patch_branch }} \
-  #             ${{ steps.load-patches.outputs.patch_url }} package-repo
-  #           echo "::endgroup::"
-  #           echo "✓ Package cloned from patch repository"
-  #         else
-  #           echo "📦 Cloning from inveniosoftware: ${{ matrix.package }}"
-  #           echo "::group::Cloning package repository"
-  #           git clone --depth 1 https://github.com/inveniosoftware/${{ matrix.package }}.git package-repo || {
-  #             echo "::endgroup::"
-  #             echo "❌ Failed to clone from inveniosoftware, package may not exist"
-  #             exit 0
-  #           }
-  #           echo "::endgroup::"
-  #           echo "✓ Package cloned from inveniosoftware"
-  #         fi
-  #         echo "SO_FAR_OK=1" >> $GITHUB_ENV
+          if [ -n "$PATCH_URL" ]; then
+            echo "has_patch=true" >> $GITHUB_OUTPUT
+            echo "Found patch for ${{ matrix.package }}: $PATCH_URL @ $PATCH_BRANCH"
+          else
+            echo "has_patch=false" >> $GITHUB_OUTPUT
+            echo "No patch configured for ${{ matrix.package }}"
+          fi
+          echo "SO_FAR_OK=1" >> $GITHUB_ENV
 
-  #     - name: Create virtual environment
-  #       continue-on-error: true
-  #       if: env.SO_FAR_OK == '1'
-  #       run: |
-  #         echo "SO_FAR_OK=0" >> $GITHUB_ENV
-  #         cd package-repo
-  #         echo "🔧 Setting up virtual environment and installing dependencies"
-  #         echo "::group::Creating virtual environment"
-  #         uv venv --seed
-  #         echo "::endgroup::"
-  #         source .venv/bin/activate
+      - name: Clone package repository
+        if: env.SO_FAR_OK == '1'
+        run: |
+          echo "SO_FAR_OK=0" >> $GITHUB_ENV
+          if [ "${{ steps.load-patches.outputs.has_patch }}" = "true" ]; then
+            echo "📦 Cloning from patch repository: ${{ steps.load-patches.outputs.patch_url }} @ ${{ steps.load-patches.outputs.patch_branch }}"
+            echo "::group::Cloning package repository"
+            git clone --depth 1 --branch ${{ steps.load-patches.outputs.patch_branch }} \
+              ${{ steps.load-patches.outputs.patch_url }} package-repo
+            echo "::endgroup::"
+            echo "✓ Package cloned from patch repository"
+          else
+            echo "📦 Cloning from inveniosoftware: ${{ matrix.package }}"
+            echo "::group::Cloning package repository"
+            git clone --depth 1 https://github.com/inveniosoftware/${{ matrix.package }}.git package-repo || {
+              echo "::endgroup::"
+              echo "❌ Failed to clone from inveniosoftware, package may not exist"
+              exit 0
+            }
+            echo "::endgroup::"
+            echo "✓ Package cloned from inveniosoftware"
+          fi
+          echo "SO_FAR_OK=1" >> $GITHUB_ENV
 
-  #         # Install the package with test dependencies
-  #         echo "::group::Installing package with dependencies"
-  #         uv pip install -e ".[tests,opensearch2,s3,devs,s3fs,oaipmh,rdf,sparql,postgresql,admin]"
-  #         echo "::endgroup::"
-  #         echo "✓ Virtual environment created and dependencies installed"
-  #         echo "SO_FAR_OK=1" >> $GITHUB_ENV
+      - name: Create virtual environment
+        continue-on-error: true
+        if: env.SO_FAR_OK == '1'
+        run: |
+          echo "SO_FAR_OK=0" >> $GITHUB_ENV
+          cd package-repo
+          echo "🔧 Setting up virtual environment and installing dependencies"
+          echo "::group::Creating virtual environment"
+          uv venv --seed
+          echo "::endgroup::"
+          source .venv/bin/activate
+
+          # Install the package with test dependencies
+          echo "::group::Installing package with dependencies"
+          uv pip install -e ".[tests,opensearch2,s3,devs,s3fs,oaipmh,rdf,sparql,postgresql,admin]"
+          echo "::endgroup::"
+          echo "✓ Virtual environment created and dependencies installed"
+          echo "SO_FAR_OK=1" >> $GITHUB_ENV
 
   #     - name: Run tests without patches
   #       id: test-without-patch
