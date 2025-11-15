@@ -161,31 +161,31 @@ jobs:
           package-path: package-repo
           requirement-type: patched-dependencies
 
-      #     - name: Run tests without patches
-      #       id: test-without-patch
-      #       continue-on-error: true
-      #       if: env.SO_FAR_OK == '1'
-      #       run: |
-      #         echo "SO_FAR_OK=0" >> $GITHUB_ENV
-      #         cd package-repo
-      #         source .venv/bin/activate
+      - name: Run tests on patched package / with patched dependencies
+        id: test-with-patch
+        continue-on-error: true
+        if: env.SO_FAR_OK == '1' && ( steps.check-patch.outputs.applies == 'true' || steps.load-patches.outputs.has_patch == 'true' )
+        run: |
+          echo "SO_FAR_OK=0" >> $GITHUB_ENV
+          cd package-repo
+          source .venv/bin/activate
 
-      #         echo "🧪 Running tests without patches"
-      #         echo "::group::Test execution (before patches)"
-      #         set +e
-      #         bash run-tests.sh 2>&1 | tee ../test-output-before.txt
-      #         TEST_EXIT_CODE=${PIPESTATUS[0]}
-      #         set -e
-      #         echo "::endgroup::"
+          echo "🧪 Running tests on patched package / with patched dependencies"
+          echo "::group::Test execution"
+          set +e
+          bash run-tests.sh 2>&1 | tee ../test-output-patched.txt
+          TEST_EXIT_CODE=${PIPESTATUS[0]}
+          set -e
+          echo "::endgroup::"
 
-      #         if [ $TEST_EXIT_CODE -ne 0 ]; then
-      #           echo "❌ Tests failed (exit code: $TEST_EXIT_CODE)"
-      #           echo "failed" > ../test-output-before-status.txt
-      #         else
-      #           echo "✓ Tests passed without patches"
-      #           echo "success" > ../test-output-before-status.txt
-      #         fi
-      #         echo "SO_FAR_OK=1" >> $GITHUB_ENV
+          if [ $TEST_EXIT_CODE -ne 0 ]; then
+            echo "❌ Tests failed (exit code: $TEST_EXIT_CODE)"
+            echo "failed" > ../test-status-patched.txt
+          else
+            echo "✓ Tests passed"
+            echo "success" > ../test-status-patched.txt
+          fi
+          echo "SO_FAR_OK=1" >> $GITHUB_ENV
 
       #     - name: Clone package repository if it is patched
       #       if: env.SO_FAR_OK == '1' && steps.load-patches.outputs.has_patch == 'true'
