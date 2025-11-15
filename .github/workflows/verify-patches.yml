@@ -17,11 +17,6 @@ jobs:
       - name: Checkout verification repository
         uses: actions/checkout@v4
 
-      - name: Setup Docker cache.
-        uses: ScribeMD/docker-cache@0.5.0
-        with:
-          key: docker-${{ runner.os }}-invenio-bug-verification
-
       - name: Setup Python and UV
         uses: ./.github/actions/install-python
         with:
@@ -35,6 +30,9 @@ jobs:
           docker-services-cli up --db postgresql --search opensearch --mq rabbitmq --cache redis --s3 minio
           docker-services-cli down
           echo "Docker cache setup completed."
+
+      - name: Save Docker images
+        uses: ./.github/actions/store-docker
 
   extract-tested-packages:
     name: Extract Invenio Packages
@@ -88,10 +86,8 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Load cached docker images.
-        uses: ScribeMD/docker-cache@0.5.0
-        with:
-          key: docker-${{ runner.os }}-invenio-bug-verification
+      - name: Load Docker images
+        uses: ./.github/actions/load-docker
 
       - name: Check if sources of ${{ matrix.package }} are patched
         # determine if there is a patch for the current package
