@@ -14,7 +14,10 @@ jobs:
     name: Setup Docker Cache
     runs-on: ubuntu-latest
     steps:
-      - name: Cache Docker images.
+      - name: Checkout verification repository
+        uses: actions/checkout@v4
+
+      - name: Setup Docker cache.
         uses: ScribeMD/docker-cache@0.5.0
         with:
           key: docker-${{ runner.os }}-invenio-bug-verification
@@ -65,7 +68,9 @@ jobs:
 
   test-packages:
     name: Test ${{ matrix.package }}
-    needs: extract-tested-packages
+    needs:
+      - extract-tested-packages
+      - setup-docker-cache
     runs-on: ubuntu-latest
     env:
       SO_FAR_OK: 1
