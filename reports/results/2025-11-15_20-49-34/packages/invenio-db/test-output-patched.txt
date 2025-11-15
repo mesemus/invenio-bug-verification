@@ -1,2 +1,0 @@
-bash run-tests.sh
-  Warning: blah
