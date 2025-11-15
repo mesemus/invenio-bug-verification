@@ -265,7 +265,7 @@ jobs:
             elif [ "$PATCHED_TESTS_OUTCOME" == "skipped" ] ; then
               RESULT="no-change-skipped"
               RESULT_ICON="✅"
-              RESULT_TEXT="Tests passed before patch, skipped patch tests"
+              RESULT_TEXT="Tests passed on original, skipped patch tests"
             fi
           elif [ "$ORIGINAL_TESTS_OUTCOME" == "skipped" ] ; then
             if [ "$PATCHED_TESTS_OUTCOME" == "failed" ] ; then
@@ -279,7 +279,7 @@ jobs:
             elif [ "$PATCHED_TESTS_OUTCOME" == "skipped" ] ; then
               RESULT="no-change-both-skipped"
               RESULT_ICON="ℹ️"
-              RESULT_TEXT="Tests skipped before and after patch"
+              RESULT_TEXT="Tests skipped on both original and patched versions"
             fi
           fi
 
@@ -325,12 +325,12 @@ jobs:
         run: |
           # Extract warnings from original test log if it exists
           if [ -f artifacts/test-output-original.txt ]; then
-            python3 scripts/extract_warnings.py artifacts/test-output-original.txt original artifacts/result-summary.json
+            python3 scripts/extract_warnings.py artifacts/test-output-original.txt original artifacts/result-summary.json artifacts/warnings-original.md
           fi
 
           # Extract warnings from patched test log if it exists
           if [ -f artifacts/test-output-patched.txt ]; then
-            python3 scripts/extract_warnings.py artifacts/test-output-patched.txt patched artifacts/result-summary.json
+            python3 scripts/extract_warnings.py artifacts/test-output-patched.txt patched artifacts/result-summary.json artifacts/warnings-patched.md
           fi
 
       - name: Upload test artifacts
@@ -491,15 +491,15 @@ jobs:
                 RESULT_TEXT=$(jq -r '.result_text' "$dir/result-summary.json")
 
                 # Create package directory and copy test outputs
-                mkdir -p "${REPORT_DIR}/$PACKAGE"
+                mkdir -p "${REPORT_DIR}/packages/$PACKAGE"
                 if [ -f "$dir/test-output-original.txt" ]; then
-                  cp "$dir/test-output-original.txt" "${REPORT_DIR}/$PACKAGE/"
+                  cp "$dir/test-output-original.txt" "${REPORT_DIR}/packages/$PACKAGE/"
                 fi
                 if [ -f "$dir/test-output-patched.txt" ]; then
-                  cp "$dir/test-output-patched.txt" "${REPORT_DIR}/$PACKAGE/"
+                  cp "$dir/test-output-patched.txt" "${REPORT_DIR}/packages/$PACKAGE/"
                 fi
                 if [ -f "$dir/test-diff.txt" ]; then
-                  cp "$dir/test-diff.txt" "${REPORT_DIR}/$PACKAGE/"
+                  cp "$dir/test-diff.txt" "${REPORT_DIR}/packages/$PACKAGE/"
                 fi
 
                 # Format status
@@ -526,16 +526,16 @@ jobs:
 
                 # Create links for test outputs
                 LINKS=""
-                if [ -f "${REPORT_DIR}/$PACKAGE/test-output-original.txt" ]; then
-                  LINKS="$LINKS [original]($PACKAGE/test-output-original.txt)"
+                if [ -f "${REPORT_DIR}/packages/$PACKAGE/test-output-original.txt" ]; then
+                  LINKS="$LINKS [original](packages/$PACKAGE/test-output-original.txt)"
                 fi
-                if [ -f "${REPORT_DIR}/$PACKAGE/test-output-patched.txt" ]; then
+                if [ -f "${REPORT_DIR}/packages/$PACKAGE/test-output-patched.txt" ]; then
                   [ -n "$LINKS" ] && LINKS="$LINKS "
-                  LINKS="$LINKS [patched]($PACKAGE/test-output-patched.txt)"
+                  LINKS="$LINKS [patched](packages/$PACKAGE/test-output-patched.txt)"
                 fi
-                if [ -f "${REPORT_DIR}/$PACKAGE/test-diff.txt" ]; then
+                if [ -f "${REPORT_DIR}/packages/$PACKAGE/test-diff.txt" ]; then
                   [ -n "$LINKS" ] && LINKS="$LINKS "
-                  LINKS="$LINKS [diff]($PACKAGE/test-diff.txt)"
+                  LINKS="$LINKS [diff](packages/$PACKAGE/test-diff.txt)"
                 fi
 
                 if [ -n "$LINKS" ]; then
@@ -565,9 +565,9 @@ jobs:
                 ORIGINAL_TESTS_OUTCOME=$(jq -r '.original_tests_outcome' "$dir/result-summary.json")
 
                 # Create package directory and copy test output
-                mkdir -p "${REPORT_DIR}/$PACKAGE"
+                mkdir -p "${REPORT_DIR}/packages/$PACKAGE"
                 if [ -f "$dir/test-output-original.txt" ]; then
-                  cp "$dir/test-output-original.txt" "${REPORT_DIR}/$PACKAGE/"
+                  cp "$dir/test-output-original.txt" "${REPORT_DIR}/packages/$PACKAGE/"
                 fi
 
                 case $ORIGINAL_TESTS_OUTCOME in
@@ -578,8 +578,8 @@ jobs:
                 esac
 
                 # Create link for test output if it exists
-                if [ -f "${REPORT_DIR}/$PACKAGE/test-output-original.txt" ]; then
-                  PACKAGE_DISPLAY="\`$PACKAGE\` <br/> [output]($PACKAGE/test-output-original.txt)"
+                if [ -f "${REPORT_DIR}/packages/$PACKAGE/test-output-original.txt" ]; then
+                  PACKAGE_DISPLAY="\`$PACKAGE\` <br/> [output](packages/$PACKAGE/test-output-original.txt)"
                 else
                   PACKAGE_DISPLAY="\`$PACKAGE\`"
                 fi
@@ -609,15 +609,15 @@ jobs:
                 RESULT_TEXT=$(jq -r '.result_text' "$dir/result-summary.json")
 
                 # Create package directory and copy test outputs
-                mkdir -p "${REPORT_DIR}/$PACKAGE"
+                mkdir -p "${REPORT_DIR}/packages/$PACKAGE"
                 if [ -f "$dir/test-output-original.txt" ]; then
-                  cp "$dir/test-output-original.txt" "${REPORT_DIR}/$PACKAGE/"
+                  cp "$dir/test-output-original.txt" "${REPORT_DIR}/packages/$PACKAGE/"
                 fi
                 if [ -f "$dir/test-output-patched.txt" ]; then
-                  cp "$dir/test-output-patched.txt" "${REPORT_DIR}/$PACKAGE/"
+                  cp "$dir/test-output-patched.txt" "${REPORT_DIR}/packages/$PACKAGE/"
                 fi
                 if [ -f "$dir/test-diff.txt" ]; then
-                  cp "$dir/test-diff.txt" "${REPORT_DIR}/$PACKAGE/"
+                  cp "$dir/test-diff.txt" "${REPORT_DIR}/packages/$PACKAGE/"
                 fi
 
                 # Format status
@@ -644,16 +644,16 @@ jobs:
 
                 # Create links for test outputs
                 LINKS=""
-                if [ -f "${REPORT_DIR}/$PACKAGE/test-output-original.txt" ]; then
-                  LINKS="$LINKS [original]($PACKAGE/test-output-original.txt)"
+                if [ -f "${REPORT_DIR}/packages/$PACKAGE/test-output-original.txt" ]; then
+                  LINKS="$LINKS [original](packages/$PACKAGE/test-output-original.txt)"
                 fi
-                if [ -f "${REPORT_DIR}/$PACKAGE/test-output-patched.txt" ]; then
+                if [ -f "${REPORT_DIR}/packages/$PACKAGE/test-output-patched.txt" ]; then
                   [ -n "$LINKS" ] && LINKS="$LINKS "
-                  LINKS="$LINKS [patched]($PACKAGE/test-output-patched.txt)"
+                  LINKS="$LINKS [patched](packages/$PACKAGE/test-output-patched.txt)"
                 fi
-                if [ -f "${REPORT_DIR}/$PACKAGE/test-diff.txt" ]; then
+                if [ -f "${REPORT_DIR}/packages/$PACKAGE/test-diff.txt" ]; then
                   [ -n "$LINKS" ] && LINKS="$LINKS "
-                  LINKS="$LINKS [diff]($PACKAGE/test-diff.txt)"
+                  LINKS="$LINKS [diff](packages/$PACKAGE/test-diff.txt)"
                 fi
 
                 if [ -n "$LINKS" ]; then

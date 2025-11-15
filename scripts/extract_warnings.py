@@ -2,10 +2,11 @@
 """
 Extract warnings from test logs and add them to result-summary.json.
 
-Usage: extract_warnings.py <log_path> <log_type> <result_summary_path>
+Usage: extract_warnings.py <log_path> <log_type> <result_summary_path> <warnings_file>
 
 Extracts warnings matching the pattern '^\\s+Warning: (.*)$' from test logs,
 deduplicates them with counts, and adds them to result-summary.json.
+Also generates a markdown file with warnings sorted by occurrence count.
 """
 
 import json
@@ -31,6 +32,25 @@ def extract_warnings(log_path: Path) -> dict[str, int]:
                 warnings[warning_text] += 1
 
     return dict(warnings)
+
+
+def generate_warnings_markdown(
+    warnings: dict[str, int], warnings_file: Path, log_type: str
+) -> None:
+    """Generate markdown file with warnings sorted by occurrence count."""
+    if not warnings:
+        return
+
+    # Sort warnings by count (descending) then by text (ascending)
+    sorted_warnings = sorted(warnings.items(), key=lambda x: (-x[1], x[0]))
+
+    with warnings_file.open("w", encoding="utf-8") as f:
+        f.write(f"# Warnings ({log_type})\n\n")
+        for idx, (warning_text, count) in enumerate(sorted_warnings, 1):
+            f.write(
+                f"## Warning {idx} - {count} occurrence{'s' if count > 1 else ''}\n\n"
+            )
+            f.write(f"{warning_text}\n\n")
 
 
 def update_result_summary(
@@ -66,9 +86,9 @@ def update_result_summary(
 
 def main() -> None:
     """Main entry point."""
-    if len(sys.argv) != 4:
+    if len(sys.argv) != 5:
         print(
-            "Usage: extract_warnings.py <log_path> <log_type> <result_summary_path>",
+            "Usage: extract_warnings.py <log_path> <log_type> <result_summary_path> <warnings_file>",
             file=sys.stderr,
         )
         sys.exit(1)
@@ -76,6 +96,7 @@ def main() -> None:
     log_path = Path(sys.argv[1])
     log_type = sys.argv[2]
     result_summary_path = Path(sys.argv[3])
+    warnings_file = Path(sys.argv[4])
 
     try:
         # Extract warnings from log
@@ -91,6 +112,11 @@ def main() -> None:
         # Update result summary
         update_result_summary(result_summary_path, log_type, warnings)
         print(f"✓ Updated {result_summary_path}")
+
+        # Generate warnings markdown file
+        if warnings:
+            generate_warnings_markdown(warnings, warnings_file, log_type)
+            print(f"✓ Generated {warnings_file}")
 
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
