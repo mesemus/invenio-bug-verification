@@ -371,17 +371,19 @@ jobs:
       - name: Create report directory
         run: |
           REPORT_DIR=reports/$(date +%Y-%m-%d_%H-%M-%S)
+          REPORT_FILE=$REPORT_DIR/report.md
           mkdir -p "$REPORT_DIR"
           echo "Report directory created at $REPORT_DIR"
           echo "REPORT_DIR=$REPORT_DIR" >> $GITHUB_ENV
+          echo "REPORT_FILE=$REPORT_FILE" >> $GITHUB_ENV
 
       - name: Generate summary report
         run: |
           # Generate README.md with summary
-          echo "# Invenio Bugfix Verification Results" > ${REPORT_DIR}/README.md
-          echo "" >> ${REPORT_DIR}/README.md
-          echo "_Last updated: $(date -u +"%Y-%m-%d %H:%M:%S UTC")_" >> ${REPORT_DIR}/README.md
-          echo "" >> ${REPORT_DIR}/README.md
+          echo "# Invenio Bugfix Verification Results" > ${REPORT_FILE}
+          echo "" >> ${REPORT_FILE}
+          echo "_Last updated: $(date -u +"%Y-%m-%d %H:%M:%S UTC")_" >> ${REPORT_FILE}
+          echo "" >> ${REPORT_FILE}
 
           # Calculate overall statistics
           TOTAL=0
@@ -427,26 +429,26 @@ jobs:
           done
 
           # Overall Status
-          echo "## 📊 Overall Status" >> ${REPORT_DIR}/README.md
-          echo "" >> ${REPORT_DIR}/README.md
-          echo "| Metric | Count |" >> ${REPORT_DIR}/README.md
-          echo "|--------|-------|" >> ${REPORT_DIR}/README.md
-          echo "| **Total Packages** | $TOTAL |" >> ${REPORT_DIR}/README.md
-          echo "| **Patched Packages** | $PATCHED |" >> ${REPORT_DIR}/README.md
-          echo "| **Unpatched Packages** | $UNPATCHED |" >> ${REPORT_DIR}/README.md
-          echo "" >> ${REPORT_DIR}/README.md
-          echo "### Patch Results" >> ${REPORT_DIR}/README.md
-          echo "| Result | Count |" >> ${REPORT_DIR}/README.md
-          echo "|--------|-------|" >> ${REPORT_DIR}/README.md
-          echo "| ✅ Fixed | $FIXED |" >> ${REPORT_DIR}/README.md
-          echo "| ❌ Regressions | $REGRESSION |" >> ${REPORT_DIR}/README.md
-          echo "| ⚠️  Still Failing | $STILL_FAILING |" >> ${REPORT_DIR}/README.md
-          echo "| ℹ️  No Change | $NO_CHANGE |" >> ${REPORT_DIR}/README.md
-          echo "" >> ${REPORT_DIR}/README.md
+          echo "## 📊 Overall Status" >> ${REPORT_FILE}
+          echo "" >> ${REPORT_FILE}
+          echo "| Metric | Count |" >> ${REPORT_FILE}
+          echo "|--------|-------|" >> ${REPORT_FILE}
+          echo "| **Total Packages** | $TOTAL |" >> ${REPORT_FILE}
+          echo "| **Patched Packages** | $PATCHED |" >> ${REPORT_FILE}
+          echo "| **Unpatched Packages** | $UNPATCHED |" >> ${REPORT_FILE}
+          echo "" >> ${REPORT_FILE}
+          echo "### Patch Results" >> ${REPORT_FILE}
+          echo "| Result | Count |" >> ${REPORT_FILE}
+          echo "|--------|-------|" >> ${REPORT_FILE}
+          echo "| ✅ Fixed | $FIXED |" >> ${REPORT_FILE}
+          echo "| ❌ Regressions | $REGRESSION |" >> ${REPORT_FILE}
+          echo "| ⚠️  Still Failing | $STILL_FAILING |" >> ${REPORT_FILE}
+          echo "| ℹ️  No Change | $NO_CHANGE |" >> ${REPORT_FILE}
+          echo "" >> ${REPORT_FILE}
 
           # List of patches
-          echo "## 🔧 Configured Patches" >> ${REPORT_DIR}/README.md
-          echo "" >> ${REPORT_DIR}/README.md
+          echo "## 🔧 Configured Patches" >> ${REPORT_FILE}
+          echo "" >> ${REPORT_FILE}
 
           # Extract unique patches from all result files
           PATCHES_FOUND=false
@@ -467,10 +469,10 @@ jobs:
           done
 
           # Patches from patches.json
-          echo "## 🔄 Patched Packages" >> ${REPORT_DIR}/README.md
-          echo "" >> ${REPORT_DIR}/README.md
-          echo "| Package | Patches Applied | Original | Patched | Result |" >> ${REPORT_DIR}/README.md
-          echo "|---------|----------------|--------|-------|--------|" >> ${REPORT_DIR}/README.md
+          echo "## 🔄 Patched Packages" >> ${REPORT_FILE}
+          echo "" >> ${REPORT_FILE}
+          echo "| Package | Patches Applied | Original | Patched | Result |" >> ${REPORT_FILE}
+          echo "|---------|----------------|--------|-------|--------|" >> ${REPORT_FILE}
 
           for dir in artifacts/test-results-*/; do
             if [ -f "$dir/result-summary.json" ]; then
@@ -537,17 +539,17 @@ jobs:
                   PACKAGE_DISPLAY="\`$PACKAGE\`"
                 fi
 
-                echo "| $PACKAGE_DISPLAY | $PATCHED_PKGS | $ORIGINAL_STATUS | $PATCHED_STATUS | $RESULT_STATUS |" >> ${REPORT_DIR}/README.md
+                echo "| $PACKAGE_DISPLAY | $PATCHED_PKGS | $ORIGINAL_STATUS | $PATCHED_STATUS | $RESULT_STATUS |" >> ${REPORT_FILE}
               fi
             fi
           done
-          echo "" >> ${REPORT_DIR}/README.md
+          echo "" >> ${REPORT_FILE}
 
           # Packages that do not depend on patched packages
-          echo "## 📦 Packages that do not depend on patched packages" >> ${REPORT_DIR}/README.md
-          echo "" >> ${REPORT_DIR}/README.md
-          echo "| Package | Build Status |" >> ${REPORT_DIR}/README.md
-          echo "|---------|--------------|" >> ${REPORT_DIR}/README.md
+          echo "## 📦 Packages that do not depend on patched packages" >> ${REPORT_FILE}
+          echo "" >> ${REPORT_FILE}
+          echo "| Package | Build Status |" >> ${REPORT_FILE}
+          echo "|---------|--------------|" >> ${REPORT_FILE}
 
           for dir in artifacts/test-results-*/; do
             if [ -f "$dir/result-summary.json" ]; then
@@ -577,18 +579,18 @@ jobs:
                   PACKAGE_DISPLAY="\`$PACKAGE\`"
                 fi
 
-                echo "| $PACKAGE_DISPLAY | $STATUS |" >> ${REPORT_DIR}/README.md
+                echo "| $PACKAGE_DISPLAY | $STATUS |" >> ${REPORT_FILE}
               fi
             fi
           done
-          echo "" >> ${REPORT_DIR}/README.md
+          echo "" >> ${REPORT_FILE}
 
           # newly uncommented
           # Packages that depend on patched packages
-          echo "## 🔄 Packages that depend on patched packages" >> ${REPORT_DIR}/README.md
-          echo "" >> ${REPORT_DIR}/README.md
-          echo "| Package | Patches Applied | Original | Patched | Result |" >> ${REPORT_DIR}/README.md
-          echo "|---------|----------------|--------|-------|--------|" >> ${REPORT_DIR}/README.md
+          echo "## 🔄 Packages that depend on patched packages" >> ${REPORT_FILE}
+          echo "" >> ${REPORT_FILE}
+          echo "| Package | Patches Applied | Original | Patched | Result |" >> ${REPORT_FILE}
+          echo "|---------|----------------|--------|-------|--------|" >> ${REPORT_FILE}
 
           for dir in artifacts/test-results-*/; do
             if [ -f "$dir/result-summary.json" ]; then
@@ -655,21 +657,21 @@ jobs:
                   PACKAGE_DISPLAY="\`$PACKAGE\`"
                 fi
 
-                echo "| $PACKAGE_DISPLAY | $PATCHED_PKGS | $ORIGINAL_STATUS | $PATCHED_STATUS | $RESULT_STATUS |" >> ${REPORT_DIR}/README.md
+                echo "| $PACKAGE_DISPLAY | $PATCHED_PKGS | $ORIGINAL_STATUS | $PATCHED_STATUS | $RESULT_STATUS |" >> ${REPORT_FILE}
               fi
             fi
           done
-          echo "" >> ${REPORT_DIR}/README.md
+          echo "" >> ${REPORT_FILE}
 
-          echo "---" >> ${REPORT_DIR}/README.md
-          echo "" >> ${REPORT_DIR}/README.md
-          echo "_For detailed test outputs and diffs, see the [full report](https://mesemus.github.io/invenio-bug-verification/)._" >> ${REPORT_DIR}/README.md
+          echo "---" >> ${REPORT_FILE}
+          echo "" >> ${REPORT_FILE}
+          echo "_For detailed test outputs and diffs, see the [full report](https://mesemus.github.io/invenio-bug-verification/)._" >> ${REPORT_FILE}
 
-          cat ${REPORT_DIR}/README.md
+          cat ${REPORT_FILE}
 
       - name: Upload the report dir as artifact
         uses: actions/upload-artifact@v4
         with:
           name: verification-report
-          path: ${REPORT_DIR}/
+          path: ${{ env.REPORT_DIR }}
           retention-days: 90
