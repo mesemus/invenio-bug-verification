@@ -93,7 +93,7 @@ jobs:
         with:
           key: docker-${{ runner.os }}-invenio-bug-verification
 
-      - name: Load patches configuration
+      - name: Check if sources of ${{ matrix.package }} are patched
         # determine if there is a patch for the current package
         # outputs:
         #   has_patch (true if the current package's sources are patched)
@@ -125,7 +125,7 @@ jobs:
           fi
 
       # we start by cloning the package (possibly patched) to run tests on patch at first
-      - name: Clone package repository for patched package tests
+      - name: Clone package repository for patched (possibly) package tests
         continue-on-error: true
         uses: ./.github/actions/clone-package
         with:
@@ -133,7 +133,7 @@ jobs:
           repository-branch: ${{ steps.load-patches.outputs.patched_repository_branch }}
           destination: package-repo
 
-      - name: Setup virtual environment and install dependencies for patched package tests
+      - name: Setup virtual environment and install dependencies
         if: env.SO_FAR_OK == '1'
         continue-on-error: true
         uses: ./.github/actions/setup-venv
@@ -218,7 +218,7 @@ jobs:
       - name: Run tests on original package without patches
         id: test-without-patch
         continue-on-error: true
-        if: env.SO_FAR_OK == '1' && ( steps.check-patch.outputs.applies == 'true' || steps.load-patches.outputs.has_patch == 'true' ) && steps.test-with-patch.conclusion == 'failure'
+        if: env.SO_FAR_OK == '1' && steps.test-with-patch.conclusion == 'failure'
         uses: ./.github/actions/run-tests
         with:
           package-path: package-repo
