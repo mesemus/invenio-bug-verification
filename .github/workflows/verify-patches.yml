@@ -10,30 +10,6 @@ env:
   EXTRAS: "tests,opensearch2,s3,devs,s3fs,oaipmh,rdf,sparql,postgresql,admin,docs"
 
 jobs:
-  setup-docker-cache:
-    name: Setup Docker Cache
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout verification repository
-        uses: actions/checkout@v4
-
-      - name: Setup Python and UV
-        uses: ./.github/actions/install-python
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Run docker services cli to initialize packages
-        run: |
-          uv venv --python ${{ env.PYTHON_VERSION }} --seed .venv
-          source .venv/bin/activate
-          uv pip install docker-services-cli setuptools
-          docker-services-cli up --db postgresql --search opensearch --mq rabbitmq --cache redis --s3 minio
-          docker-services-cli down
-          echo "Docker cache setup completed."
-
-      - name: Save Docker images
-        uses: ./.github/actions/store-docker
-
   extract-tested-packages:
     name: Extract Invenio Packages
     runs-on: ubuntu-latest
@@ -68,7 +44,6 @@ jobs:
     name: Test ${{ matrix.package }}
     needs:
       - extract-tested-packages
-      - setup-docker-cache
     runs-on: ubuntu-latest
     env:
       SO_FAR_OK: 1
@@ -85,9 +60,6 @@ jobs:
         uses: ./.github/actions/install-python
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Load Docker images
-        uses: ./.github/actions/load-docker
 
       - name: Check if sources of ${{ matrix.package }} are patched
         # determine if there is a patch for the current package
