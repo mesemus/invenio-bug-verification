@@ -370,7 +370,7 @@ jobs:
 
       - name: Create report directory
         run: |
-          REPORT_DIR=reports/$(date +%Y-%m-%d_%H-%M-%S)
+          REPORT_DIR=reports/results/$(date +%Y-%m-%d_%H-%M-%S)
           REPORT_FILE=$REPORT_DIR/report.md
           mkdir -p "$REPORT_DIR"
           echo "Report directory created at $REPORT_DIR"
@@ -668,6 +668,58 @@ jobs:
           echo "_For detailed test outputs and diffs, see the [full report](https://mesemus.github.io/invenio-bug-verification/)._" >> ${REPORT_FILE}
 
           cat ${REPORT_FILE}
+
+      - name: Update reports index
+        run: |
+          # Calculate totals for summary
+          TOTAL_PASSED=0
+          TOTAL_FAILED=0
+          TOTAL_WARNINGS=0
+
+          for dir in artifacts/test-results-*/; do
+            if [ -f "$dir/result-summary.json" ]; then
+              # Count passed/failed tests
+              ORIGINAL=$(jq -r '.original_tests_outcome' "$dir/result-summary.json")
+              PATCHED=$(jq -r '.patched_tests_outcome' "$dir/result-summary.json")
+              
+              # Use patched result if available, otherwise original
+              if [ "$PATCHED" != "null" ] && [ "$PATCHED" != "skipped" ]; then
+                [ "$PATCHED" = "success" ] && TOTAL_PASSED=$((TOTAL_PASSED + 1))
+                [ "$PATCHED" = "failed" ] && TOTAL_FAILED=$((TOTAL_FAILED + 1))
+              elif [ "$ORIGINAL" != "null" ] && [ "$ORIGINAL" != "skipped" ]; then
+                [ "$ORIGINAL" = "success" ] && TOTAL_PASSED=$((TOTAL_PASSED + 1))
+                [ "$ORIGINAL" = "failed" ] && TOTAL_FAILED=$((TOTAL_FAILED + 1))
+              fi
+
+              # Count warnings
+              ORIGINAL_WARNINGS=$(jq -r '.warnings_count.original // 0' "$dir/result-summary.json")
+              PATCHED_WARNINGS=$(jq -r '.warnings_count.patched // 0' "$dir/result-summary.json")
+              TOTAL_WARNINGS=$((TOTAL_WARNINGS + ORIGINAL_WARNINGS + PATCHED_WARNINGS))
+            fi
+          done
+
+          # Get report timestamp from REPORT_DIR
+          REPORT_TIMESTAMP=$(basename ${REPORT_DIR})
+          REPORT_LINK="./results/${REPORT_TIMESTAMP}/"
+
+          # Create status string
+          STATUS="${TOTAL_PASSED} ✅ passed, ${TOTAL_FAILED} ❌ failed, ${TOTAL_WARNINGS} warnings"
+
+          # Add new entry to reports.md
+          # Insert new row after the table separator line
+          NEW_ROW="| [${REPORT_TIMESTAMP//_/ }](${REPORT_LINK}) | ${STATUS} |"
+          awk -v new_row="$NEW_ROW" '/^|--*--|--*--|$/ {print; print new_row; next} {print}' reports/reports.md > reports/reports.md.tmp
+          mv reports/reports.md.tmp reports/reports.md
+          cat reports/reports.md
+
+      # - name: Commit and push reports index
+      #   run: |
+      #     cd repo
+      #     git config user.name "github-actions[bot]"
+      #     git config user.email "github-actions[bot]@users.noreply.github.com"
+      #     git add reports/reports.md
+      #     git commit -m "Add report for $(basename ${REPORT_DIR})" || echo "No changes to commit"
+      #     git push
 
       - name: Upload the report dir as artifact
         uses: actions/upload-artifact@v4
