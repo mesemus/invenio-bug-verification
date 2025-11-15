@@ -7,6 +7,7 @@ on:
 env:
   PYTHONUNBUFFERED: 1
   PYTHON_VERSION: "3.12"
+  EXTRAS: "tests,opensearch2,s3,devs,s3fs,oaipmh,rdf,sparql,postgresql,admin,docs"
 
 jobs:
   extract-packages:
@@ -29,33 +30,15 @@ jobs:
       - name: Extract Invenio packages from uv.lock
         id: extract
         run: |
-          cd zenodo-rdm
+          # Use extract_packages_to_test.py to extract packages
+          python3 scripts/extract_packages_to_test.py zenodo-rdm/uv.lock config.json packages.sh
 
-          # Extract package names starting with 'invenio-' from uv.lock
-          if [ -f "uv.lock" ]; then
-            PACKAGES=$(cat uv.lock | egrep '^name = "invenio-' | \
-                      sed 's/name = "\(.*\)"/\1/' | \
-                      sort -u)
-          else
-            echo "Error: uv.lock not found, using fallback list"
-            exit 1
-          fi
+          # Source the output variables
+          source packages.sh
 
-          FILTERED_PACKAGES=()
-          for pkg in $PACKAGES; do
-            # check if the package is in not_tested.json using jq
-            IS_NOT_TESTED=$(jq --arg pkg "$pkg" 'index($pkg)' ../not_tested.json)
-            if [ "$IS_NOT_TESTED" = "null" ]; then
-                FILTERED_PACKAGES+=("$pkg")
-            else
-                echo "Skipping not tested package: $pkg"
-            fi
-          done
-
-          # convert packages to JSON array
-          PACKAGES=$(printf '%s\n' "${FILTERED_PACKAGES[@]}" | jq -R -s -c 'split("\n") | map(select(length > 0))')
-          echo "Found packages: $PACKAGES"
-          echo "packages=$PACKAGES" >> $GITHUB_OUTPUT
+          # packages is already a JSON array
+          echo "Found packages: $packages"
+          echo "packages=$packages" >> $GITHUB_OUTPUT
 
   test-packages:
     name: Test ${{ matrix.package }}
@@ -91,687 +74,625 @@ jobs:
           echo "::endgroup::"
           echo "✓ uv installed successfully"
 
-      # - name: Install libxml2-dev
-      #   run: |
-      #     echo "::group::Installing system dependencies"
-      #     sudo apt-get update
-      #     sudo apt-get install -y libxml2-dev libxslt-dev
-      #     echo "::endgroup::"
-      #     echo "✓ System dependencies installed"
-
       - name: Load patches configuration
+        # determine if there is a patch for the current package
+        # outputs:
+        #   has_patch (true if there is a patch for the current package)
+        #   original_repository_url
+        #   original_repository_branch (currently always empty as default branch is used)
+        #   patched_repository_url (equal to original_repository_url if not patched, otherwise the patch URL)
+        #   patched_repository_branch (equal to original_repository_branch if not patched, otherwise the patch branch)
         id: load-patches
         run: |
           cd ${VERIFICATION_REPO_PATH}
 
-          echo "SO_FAR_OK=0" >> $GITHUB_ENV
+          # Use lookup_package.py to get repository information
+          eval $(python3 scripts/lookup_package.py config.json patches.json ${{ matrix.package }})
 
-          PATCH_URL=$(jq -r '.["${{ matrix.package }}"].url // empty' patches.json)
-          PATCH_BRANCH=$(jq -r '.["${{ matrix.package }}"].branch // empty' patches.json)
+          # Set outputs
+          echo "original_repository_url=$original_repository_url" >> $GITHUB_OUTPUT
+          echo "original_repository_branch=$original_repository_branch" >> $GITHUB_OUTPUT
+          echo "patched_repository_url=$patched_repository_url" >> $GITHUB_OUTPUT
+          echo "patched_repository_branch=$patched_repository_branch" >> $GITHUB_OUTPUT
 
-          echo "patch_url=$PATCH_URL" >> $GITHUB_OUTPUT
-          echo "patch_branch=$PATCH_BRANCH" >> $GITHUB_OUTPUT
-
-          if [ -n "$PATCH_URL" ]; then
+          # Determine if patch exists
+          if [ -n "$patched_repository_url" ]; then
             echo "has_patch=true" >> $GITHUB_OUTPUT
-            echo "Found patch for ${{ matrix.package }}: $PATCH_URL @ $PATCH_BRANCH"
+            echo "Found patch for ${{ matrix.package }}: $patched_repository_url @ $patched_repository_branch"
           else
             echo "has_patch=false" >> $GITHUB_OUTPUT
             echo "No patch configured for ${{ matrix.package }}"
           fi
-          echo "SO_FAR_OK=1" >> $GITHUB_ENV
 
-      - name: Clone package repository
-        if: env.SO_FAR_OK == '1'
-        run: |
-          echo "SO_FAR_OK=0" >> $GITHUB_ENV
-          echo "📦 Cloning from inveniosoftware: ${{ matrix.package }}"
-          echo "::group::Cloning package repository"
-          git clone --depth 1 https://github.com/inveniosoftware/${{ matrix.package }}.git package-repo || {
-            echo "::endgroup::"
-            echo "❌ Failed to clone from inveniosoftware, package may not exist"
-            exit 0
-          }
-          echo "::endgroup::"
-          echo "✓ Package cloned from inveniosoftware"
-          echo "SO_FAR_OK=1" >> $GITHUB_ENV
-
-      - name: Create virtual environment
+      # we start by cloning the package (possibly patched) to run tests on patch at first
+      - name: Clone package repository for patched package tests
         continue-on-error: true
+        uses: ./.github/actions/clone-package
+        with:
+          repository-url: ${{ steps.load-patches.outputs.patched_repository_url }}
+          repository-branch: ${{ steps.load-patches.outputs.patched_repository_branch }}
+          destination: package-repo
+
+      - name: Setup virtual environment and install dependencies for patched package tests
         if: env.SO_FAR_OK == '1'
-        run: |
-          echo "SO_FAR_OK=0" >> $GITHUB_ENV
-          cd package-repo
-          echo "🔧 Setting up virtual environment and installing dependencies"
-          echo "::group::Creating virtual environment"
-          uv venv --seed
-          echo "::endgroup::"
-          source .venv/bin/activate
-
-          # Install the package with test dependencies
-          echo "::group::Installing package with dependencies"
-          uv pip install -e ".[tests,opensearch2,s3,devs,s3fs,oaipmh,rdf,sparql,postgresql,admin,docs]"
-          echo "::endgroup::"
-          echo "✓ Virtual environment created and dependencies installed"
-          echo "SO_FAR_OK=1" >> $GITHUB_ENV
-
-      - name: Run tests without patches
-        id: test-without-patch
         continue-on-error: true
-        if: env.SO_FAR_OK == '1'
-        run: |
-          echo "SO_FAR_OK=0" >> $GITHUB_ENV
-          cd package-repo
-          source .venv/bin/activate
+        uses: ./.github/actions/setup-venv
+        with:
+          package-path: package-repo
+          extras: ${{ env.EXTRAS }}
 
-          echo "🧪 Running tests without patches"
-          echo "::group::Test execution (before patches)"
-          set +e
-          bash run-tests.sh 2>&1 | tee ../test-output-before.txt
-          TEST_EXIT_CODE=${PIPESTATUS[0]}
-          set -e
-          echo "::endgroup::"
-
-          if [ $TEST_EXIT_CODE -ne 0 ]; then
-            echo "❌ Tests failed (exit code: $TEST_EXIT_CODE)"
-            echo "failed" > ../test-output-before-status.txt
-          else
-            echo "✓ Tests passed without patches"
-            echo "success" > ../test-output-before-status.txt
-          fi
-          echo "SO_FAR_OK=1" >> $GITHUB_ENV
-
-      - name: Clone package repository if it is patched
-        if: env.SO_FAR_OK == '1' && steps.load-patches.outputs.has_patch == 'true'
-        run: |
-          echo "SO_FAR_OK=0" >> $GITHUB_ENV
-          rm -rf package-repo
-          echo "📦 Cloning from patch repository: ${{ steps.load-patches.outputs.patch_url }} @ ${{ steps.load-patches.outputs.patch_branch }}"
-          echo "::group::Cloning package repository"
-          git clone --depth 1 --branch ${{ steps.load-patches.outputs.patch_branch }} \
-            ${{ steps.load-patches.outputs.patch_url }} package-repo
-          echo "::endgroup::"
-          echo "✓ Package cloned from patch repository"
-          echo "SO_FAR_OK=1" >> $GITHUB_ENV
-
-      - name: Create virtual environment for patched package
-        continue-on-error: true
-        if: env.SO_FAR_OK == '1' && steps.load-patches.outputs.has_patch == 'true'
-        run: |
-          echo "SO_FAR_OK=0" >> $GITHUB_ENV
-          cd package-repo
-          echo "🔧 Setting up virtual environment and installing dependencies"
-          echo "::group::Creating virtual environment"
-          uv venv --seed
-          echo "::endgroup::"
-          source .venv/bin/activate
-
-          # Install the package with test dependencies
-          echo "::group::Installing package with dependencies"
-          uv pip install -e ".[tests,opensearch2,s3,devs,s3fs,oaipmh,rdf,sparql,postgresql,admin]"
-          echo "::endgroup::"
-          echo "✓ Virtual environment created and dependencies installed"
-          echo "SO_FAR_OK=1" >> $GITHUB_ENV
-
-      - name: Check if patch applies to this package
+      - name: Apply patches if applicable
         id: check-patch
         continue-on-error: true
         if: env.SO_FAR_OK == '1' && steps.load-patches.outputs.has_patch == 'false'
         run: |
-          cd verification-repo
+          cd ${VERIFICATION_REPO_PATH}
 
-          # Check if any package in patches.json is installed in the venv
-          APPLIES=false
-          PATCHED_PACKAGES=""
+          # Use apply_patches.py to check and apply patches
+          python3 scripts/apply_patches.py ${{ matrix.package }} ../package-repo/.venv patches.json ../patch-variables.sh
 
-          cd ../package-repo
-          source .venv/bin/activate
+          # Source the output variables
+          source ../patch-variables.sh
 
-          # Get all packages from patches.json
-          cd ../verification-repo
-          PATCH_PACKAGES=$(jq -r 'keys[]' patches.json)
+          # Set outputs
+          echo "applies=$applies" >> $GITHUB_OUTPUT
+          echo "patched_packages=$patched_packages" >> $GITHUB_OUTPUT
 
-          cd ../package-repo
-          echo "::group::Checking for applicable patches"
-          for pkg in $PATCH_PACKAGES; do
-            if pip show "$pkg" > /dev/null 2>&1; then
-              APPLIES=true
-              PATCHED_PACKAGES="$PATCHED_PACKAGES $pkg"
-              echo "Found: $pkg is installed and will be patched"
-            fi
-          done
-          echo "::endgroup::"
-
-          if [ "$APPLIES" = "true" ]; then
-            echo "🔄 Patches will be applied to:$PATCHED_PACKAGES"
-            echo "applies=true" >> $GITHUB_OUTPUT
-            echo "patched_packages=$PATCHED_PACKAGES" >> $GITHUB_OUTPUT
+          if [ "$applies" = "true" ]; then
+            echo "🔄 Patches were applied to: $patched_packages"
           else
             echo "ℹ️  No applicable patches found for this package"
-            echo "applies=false" >> $GITHUB_OUTPUT
             echo "reason=no-patch-packages-installed" >> $GITHUB_OUTPUT
           fi
 
-      - name: Apply patches
-        if: steps.check-patch.outputs.applies == 'true' && env.SO_FAR_OK == '1' && steps.load-patches.outputs.has_patch == 'false'
-        continue-on-error: true
-        run: |
-          # For each package in patches.json that's installed in the venv
-          for pkg in ${{ steps.check-patch.outputs.patched_packages }}; do
-            PATCH_URL=$(jq -r ".\"$pkg\".url" verification-repo/patches.json)
-            PATCH_BRANCH=$(jq -r ".\"$pkg\".branch" verification-repo/patches.json)
+  #     - name: Run tests without patches
+  #       id: test-without-patch
+  #       continue-on-error: true
+  #       if: env.SO_FAR_OK == '1'
+  #       run: |
+  #         echo "SO_FAR_OK=0" >> $GITHUB_ENV
+  #         cd package-repo
+  #         source .venv/bin/activate
 
-            echo "📥 Applying patch for $pkg from $PATCH_URL @ $PATCH_BRANCH"
+  #         echo "🧪 Running tests without patches"
+  #         echo "::group::Test execution (before patches)"
+  #         set +e
+  #         bash run-tests.sh 2>&1 | tee ../test-output-before.txt
+  #         TEST_EXIT_CODE=${PIPESTATUS[0]}
+  #         set -e
+  #         echo "::endgroup::"
 
-            # Clone the patched version to a temporary directory
-            echo "::group::Cloning and installing patched $pkg"
-            git clone --depth 1 --branch "$PATCH_BRANCH" "$PATCH_URL" "patched-$pkg"
+  #         if [ $TEST_EXIT_CODE -ne 0 ]; then
+  #           echo "❌ Tests failed (exit code: $TEST_EXIT_CODE)"
+  #           echo "failed" > ../test-output-before-status.txt
+  #         else
+  #           echo "✓ Tests passed without patches"
+  #           echo "success" > ../test-output-before-status.txt
+  #         fi
+  #         echo "SO_FAR_OK=1" >> $GITHUB_ENV
 
-            # Install it in the venv
-            cd package-repo
-            source .venv/bin/activate
-            uv pip install "../patched-$pkg" --force-reinstall --no-deps
-            cd ..
-            echo "::endgroup::"
-            echo "✓ Patch applied for $pkg"
-          done
+  #     - name: Clone package repository if it is patched
+  #       if: env.SO_FAR_OK == '1' && steps.load-patches.outputs.has_patch == 'true'
+  #       uses: ./.github/actions/clone-package
+  #       with:
+  #         repository-url: ${{ steps.load-patches.outputs.patched_repository_url }}
+  #         repository-branch: ${{ steps.load-patches.outputs.patched_repository_branch }}
+  #         destination: package-repo
 
-      - name: Run tests with patches
-        if: ( steps.check-patch.outputs.applies == 'true' || steps.load-patches.outputs.has_patch == 'true' ) && env.SO_FAR_OK == '1'
-        id: test-with-patch
-        continue-on-error: true
-        run: |
-          cd package-repo
-          source .venv/bin/activate
+  #     - name: Create virtual environment for patched package
+  #       continue-on-error: true
+  #       if: env.SO_FAR_OK == '1' && steps.load-patches.outputs.has_patch == 'true'
+  #       run: |
+  #         echo "SO_FAR_OK=0" >> $GITHUB_ENV
 
-          echo "🧪 Running tests with patches applied"
-          echo "::group::Test execution (after patches)"
-          set +e
-          bash run-tests.sh 2>&1 | tee ../test-output-after.txt
-          TEST_EXIT_CODE=${PIPESTATUS[0]}
-          set -e
-          echo "::endgroup::"
+  #     - name: Setup virtual environment for patched package
+  #       if: env.SO_FAR_OK == '1' && steps.load-patches.outputs.has_patch == 'true'
+  #       uses: ./.github/actions/setup-venv
+  #       with:
+  #         package-path: package-repo
+  #         extras: tests,opensearch2,s3,devs,s3fs,oaipmh,rdf,sparql,postgresql,admin
 
-          if [ $TEST_EXIT_CODE -ne 0 ]; then
-            echo "❌ Tests failed (exit code: $TEST_EXIT_CODE)"
-            echo "failed" > ../test-output-after-status.txt
-          else
-            echo "✓ Tests passed with patches"
-            echo "success" > ../test-output-after-status.txt
-          fi
+  #     - name: Mark patched environment setup complete
+  #       if: env.SO_FAR_OK == '1' && steps.load-patches.outputs.has_patch == 'true'
+  #       run: |
+  #         echo "SO_FAR_OK=1" >> $GITHUB_ENV
 
-      - name: Compare test results
-        if: env.SO_FAR_OK == '1'
-        id: compare
-        continue-on-error: true
-        run: |
-          # Create a diff of the test outputs
-          diff -buN test-output-before.txt test-output-after.txt > test-diff.txt || true
+  #     - name: Run tests with patches
+  #       if: ( steps.check-patch.outputs.applies == 'true' || steps.load-patches.outputs.has_patch == 'true' ) && env.SO_FAR_OK == '1'
+  #       id: test-with-patch
+  #       continue-on-error: true
+  #       run: |
+  #         cd package-repo
+  #         source .venv/bin/activate
 
-          # Analyze the results using status files
-          BEFORE_STATUS=$(cat test-output-before-status.txt || echo "skipped")
-          AFTER_STATUS=$(cat test-output-after-status.txt || echo "skipped")
+  #         echo "🧪 Running tests with patches applied"
+  #         echo "::group::Test execution (after patches)"
+  #         set +e
+  #         bash run-tests.sh 2>&1 | tee ../test-output-after.txt
+  #         TEST_EXIT_CODE=${PIPESTATUS[0]}
+  #         set -e
+  #         echo "::endgroup::"
 
-          if [ "$BEFORE_STATUS" == "failed" ] ; then
-            if [ "$AFTER_STATUS" == "failed" ] ; then
-              RESULT="still-failing"
-              RESULT_ICON="⚠️"
-              RESULT_TEXT="Tests still failing after patch"
-            elif [ "$AFTER_STATUS" == "success" ] ; then
-              RESULT="fixed"
-              RESULT_ICON="✅"
-              RESULT_TEXT="Patch fixed failing tests"
-            elif [ "$AFTER_STATUS" == "skipped" ] ; then
-              RESULT="still-failing-skipped"
-              RESULT_ICON="⚠️"
-              RESULT_TEXT="Tests still failing after patch (after tests skipped)"
-            fi
-          elif [ "$BEFORE_STATUS" == "success" ] ; then
-            if [ "$AFTER_STATUS" == "failed" ] ; then
-              RESULT="regression"
-              RESULT_ICON="❌"              
-              RESULT_TEXT="Patch introduced test failures"
-            elif [ "$AFTER_STATUS" == "success" ] ; then
-              RESULT="ok"
-              RESULT_ICON="✅"
-              RESULT_TEXT="Tests passed before and after patch"
-            elif [ "$AFTER_STATUS" == "skipped" ] ; then
-              RESULT="no-change-skipped"
-              RESULT_ICON="✅"
-              RESULT_TEXT="Tests passed before patch, after tests skipped"
-            fi
-          elif [ "$BEFORE_STATUS" == "skipped" ] ; then
-            if [ "$AFTER_STATUS" == "failed" ] ; then
-              RESULT="regression-skipped"
-              RESULT_ICON="❌"
-              RESULT_TEXT="Patch introduced test failures (before tests skipped)"
-            elif [ "$AFTER_STATUS" == "success" ] ; then
-              RESULT="fixed-skipped"
-              RESULT_ICON="✅"
-              RESULT_TEXT="Patch fixed failing tests (before tests skipped)"
-            elif [ "$AFTER_STATUS" == "skipped" ] ; then
-              RESULT="no-change-both-skipped"
-              RESULT_ICON="ℹ️"
-              RESULT_TEXT="Tests skipped before and after patch"
-            fi
-          fi
+  #         if [ $TEST_EXIT_CODE -ne 0 ]; then
+  #           echo "❌ Tests failed (exit code: $TEST_EXIT_CODE)"
+  #           echo "failed" > ../test-output-after-status.txt
+  #         else
+  #           echo "✓ Tests passed with patches"
+  #           echo "success" > ../test-output-after-status.txt
+  #         fi
 
-          echo "$RESULT_ICON $RESULT_TEXT"
+  #     - name: Compare test results
+  #       if: env.SO_FAR_OK == '1'
+  #       id: compare
+  #       continue-on-error: true
+  #       run: |
+  #         # Create a diff of the test outputs
+  #         diff -buN test-output-before.txt test-output-after.txt > test-diff.txt || true
 
-          echo "result=$RESULT" >> $GITHUB_OUTPUT
-          echo "result_icon=$RESULT_ICON" >> $GITHUB_OUTPUT
-          echo "result_text=$RESULT_TEXT" >> $GITHUB_OUTPUT
-          echo "before_status=$BEFORE_STATUS" >> $GITHUB_OUTPUT
-          echo "after_status=$AFTER_STATUS" >> $GITHUB_OUTPUT
+  #         # Analyze the results using status files
+  #         BEFORE_STATUS=$(cat test-output-before-status.txt || echo "skipped")
+  #         AFTER_STATUS=$(cat test-output-after-status.txt || echo "skipped")
 
-      - name: Create result summary
-        id: summary
-        continue-on-error: true
-        run: |
-          BEFORE_STATUS=$(cat test-output-before-status.txt || echo "skipped")
-          AFTER_STATUS=$(cat test-output-after-status.txt || echo "skipped")
+  #         if [ "$BEFORE_STATUS" == "failed" ] ; then
+  #           if [ "$AFTER_STATUS" == "failed" ] ; then
+  #             RESULT="still-failing"
+  #             RESULT_ICON="⚠️"
+  #             RESULT_TEXT="Tests still failing after patch"
+  #           elif [ "$AFTER_STATUS" == "success" ] ; then
+  #             RESULT="fixed"
+  #             RESULT_ICON="✅"
+  #             RESULT_TEXT="Patch fixed failing tests"
+  #           elif [ "$AFTER_STATUS" == "skipped" ] ; then
+  #             RESULT="still-failing-skipped"
+  #             RESULT_ICON="⚠️"
+  #             RESULT_TEXT="Tests still failing after patch (after tests skipped)"
+  #           fi
+  #         elif [ "$BEFORE_STATUS" == "success" ] ; then
+  #           if [ "$AFTER_STATUS" == "failed" ] ; then
+  #             RESULT="regression"
+  #             RESULT_ICON="❌"
+  #             RESULT_TEXT="Patch introduced test failures"
+  #           elif [ "$AFTER_STATUS" == "success" ] ; then
+  #             RESULT="ok"
+  #             RESULT_ICON="✅"
+  #             RESULT_TEXT="Tests passed before and after patch"
+  #           elif [ "$AFTER_STATUS" == "skipped" ] ; then
+  #             RESULT="no-change-skipped"
+  #             RESULT_ICON="✅"
+  #             RESULT_TEXT="Tests passed before patch, after tests skipped"
+  #           fi
+  #         elif [ "$BEFORE_STATUS" == "skipped" ] ; then
+  #           if [ "$AFTER_STATUS" == "failed" ] ; then
+  #             RESULT="regression-skipped"
+  #             RESULT_ICON="❌"
+  #             RESULT_TEXT="Patch introduced test failures (before tests skipped)"
+  #           elif [ "$AFTER_STATUS" == "success" ] ; then
+  #             RESULT="fixed-skipped"
+  #             RESULT_ICON="✅"
+  #             RESULT_TEXT="Patch fixed failing tests (before tests skipped)"
+  #           elif [ "$AFTER_STATUS" == "skipped" ] ; then
+  #             RESULT="no-change-both-skipped"
+  #             RESULT_ICON="ℹ️"
+  #             RESULT_TEXT="Tests skipped before and after patch"
+  #           fi
+  #         fi
 
-          if [ -z "${{ steps.check-patch.outputs.applies }}" ] ; then
-            APPLIES="false"
-          else
-            APPLIES="${{ steps.check-patch.outputs.applies }}"
-          fi
+  #         echo "$RESULT_ICON $RESULT_TEXT"
 
-          cat > result-summary.json << EOF
-          {
-            "package": "${{ matrix.package }}",
-            "has_patch": ${{ steps.load-patches.outputs.has_patch }},
-            "patch_applies": $APPLIES,
-            "before_status": "$BEFORE_STATUS",
-            "after_status": "$AFTER_STATUS",
-            "result": "${{ steps.compare.outputs.result }}",
-            "result_icon": "${{ steps.compare.outputs.result_icon }}",
-            "result_text": "${{ steps.compare.outputs.result_text }}",
-            "patched_packages": "${{ steps.check-patch.outputs.patched_packages }}"
-          }
-          EOF
+  #         echo "result=$RESULT" >> $GITHUB_OUTPUT
+  #         echo "result_icon=$RESULT_ICON" >> $GITHUB_OUTPUT
+  #         echo "result_text=$RESULT_TEXT" >> $GITHUB_OUTPUT
+  #         echo "before_status=$BEFORE_STATUS" >> $GITHUB_OUTPUT
+  #         echo "after_status=$AFTER_STATUS" >> $GITHUB_OUTPUT
 
-          cat result-summary.json
+  #     - name: Create result summary
+  #       id: summary
+  #       continue-on-error: true
+  #       run: |
+  #         BEFORE_STATUS=$(cat test-output-before-status.txt || echo "skipped")
+  #         AFTER_STATUS=$(cat test-output-after-status.txt || echo "skipped")
 
-      - name: Upload test artifacts
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: test-results-${{ matrix.package }}
-          path: |
-            test-output-before.txt
-            test-output-after.txt
-            test-output-before-status.txt
-            test-output-after-status.txt
-            test-diff.txt
-            result-summary.json
-          retention-days: 30
+  #         if [ -z "${{ steps.check-patch.outputs.applies }}" ] ; then
+  #           APPLIES="false"
+  #         else
+  #           APPLIES="${{ steps.check-patch.outputs.applies }}"
+  #         fi
 
-      - name: Fail job if run-tests.sh failed
-        if: always()
-        run: |
-          # Only fail if the test execution step itself failed (not test failures, but script execution failures)
-          # Since we use continue-on-error on test steps, we check if run-tests.sh could not be executed
-          if [ ! -f test-output-before-status.txt ]; then
-            echo "Error: Tests could not be executed"
-            exit 1
-          fi
+  #         cat > result-summary.json << EOF
+  #         {
+  #           "package": "${{ matrix.package }}",
+  #           "has_patch": ${{ steps.load-patches.outputs.has_patch }},
+  #           "patch_applies": $APPLIES,
+  #           "before_status": "$BEFORE_STATUS",
+  #           "after_status": "$AFTER_STATUS",
+  #           "result": "${{ steps.compare.outputs.result }}",
+  #           "result_icon": "${{ steps.compare.outputs.result_icon }}",
+  #           "result_text": "${{ steps.compare.outputs.result_text }}",
+  #           "patched_packages": "${{ steps.check-patch.outputs.patched_packages }}"
+  #         }
+  #         EOF
 
-          # If patches were applied, also check after status
-          if [ -f test-output-after-status.txt ]; then
-            AFTER_STATUS=$(cat test-output-after-status.txt)
-            if [ "$AFTER_STATUS" = "failed" ]; then
-              echo "Error: Tests failed after applying patches"
-              exit 1
-            fi
-          else
-            # Fail if tests actually failed (as opposed to passing or being skipped)
-            BEFORE_STATUS=$(cat test-output-before-status.txt 2>/dev/null || echo "missing")
-            if [ "$BEFORE_STATUS" = "failed" ]; then
-              echo "Error: Tests failed before applying patches"
-              exit 1
-            fi
-          fi
+  #         cat result-summary.json
 
-  generate-report:
-    name: Generate Summary Report
-    needs: test-packages
-    runs-on: ubuntu-latest
-    if: always()
+  #     - name: Upload test artifacts
+  #       uses: actions/upload-artifact@v4
+  #       if: always()
+  #       with:
+  #         name: test-results-${{ matrix.package }}
+  #         path: |
+  #           test-output-before.txt
+  #           test-output-after.txt
+  #           test-output-before-status.txt
+  #           test-output-after-status.txt
+  #           test-diff.txt
+  #           result-summary.json
+  #         retention-days: 30
 
-    steps:
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: artifacts
+  #     - name: Fail job if run-tests.sh failed
+  #       if: always()
+  #       run: |
+  #         # Only fail if the test execution step itself failed (not test failures, but script execution failures)
+  #         # Since we use continue-on-error on test steps, we check if run-tests.sh could not be executed
+  #         if [ ! -f test-output-before-status.txt ]; then
+  #           echo "Error: Tests could not be executed"
+  #           exit 1
+  #         fi
 
-      - name: Generate summary report
-        run: |
-          mkdir -p report
+  #         # If patches were applied, also check after status
+  #         if [ -f test-output-after-status.txt ]; then
+  #           AFTER_STATUS=$(cat test-output-after-status.txt)
+  #           if [ "$AFTER_STATUS" = "failed" ]; then
+  #             echo "Error: Tests failed after applying patches"
+  #             exit 1
+  #           fi
+  #         else
+  #           # Fail if tests actually failed (as opposed to passing or being skipped)
+  #           BEFORE_STATUS=$(cat test-output-before-status.txt 2>/dev/null || echo "missing")
+  #           if [ "$BEFORE_STATUS" = "failed" ]; then
+  #             echo "Error: Tests failed before applying patches"
+  #             exit 1
+  #           fi
+  #         fi
 
-          # Generate README.md with summary
-          echo "# Invenio Bugfix Verification Results" > report/README.md
-          echo "" >> report/README.md
-          echo "_Last updated: $(date -u +"%Y-%m-%d %H:%M:%S UTC")_" >> report/README.md
-          echo "" >> report/README.md
+  # generate-report:
+  #   name: Generate Summary Report
+  #   needs: test-packages
+  #   runs-on: ubuntu-latest
+  #   if: always()
 
-          # Calculate overall statistics
-          TOTAL=0
-          PATCHED=0
-          UNPATCHED=0
-          FIXED=0
-          REGRESSION=0
-          NO_CHANGE=0
-          STILL_FAILING=0
-          SUCCESS_BEFORE=0
-          FAILED_BEFORE=0
-          SUCCESS_AFTER=0
-          FAILED_AFTER=0
+  #   steps:
+  #     - name: Download all artifacts
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         path: artifacts
 
-          for dir in artifacts/test-results-*/; do
-            if [ -f "$dir/result-summary.json" ]; then
-              TOTAL=$((TOTAL + 1))
-              APPLIES=$(jq -r '.patch_applies' "$dir/result-summary.json")
-              
-              if [ "$APPLIES" = "true" ]; then
-                PATCHED=$((PATCHED + 1))
-                RESULT=$(jq -r '.result' "$dir/result-summary.json")
-                case $RESULT in
-                  fixed) FIXED=$((FIXED + 1)) ;;
-                  regression) REGRESSION=$((REGRESSION + 1)) ;;
-                  still-failing) STILL_FAILING=$((STILL_FAILING + 1)) ;;
-                  *) NO_CHANGE=$((NO_CHANGE + 1)) ;;
-                esac
-                
-                BEFORE=$(jq -r '.before_status' "$dir/result-summary.json")
-                AFTER=$(jq -r '.after_status' "$dir/result-summary.json")
-                [ "$BEFORE" = "success" ] && SUCCESS_BEFORE=$((SUCCESS_BEFORE + 1))
-                [ "$BEFORE" = "failed" ] && FAILED_BEFORE=$((FAILED_BEFORE + 1))
-                [ "$AFTER" = "success" ] && SUCCESS_AFTER=$((SUCCESS_AFTER + 1))
-                [ "$AFTER" = "failed" ] && FAILED_AFTER=$((FAILED_AFTER + 1))
-              else
-                UNPATCHED=$((UNPATCHED + 1))
-                BEFORE=$(jq -r '.before_status' "$dir/result-summary.json")
-                [ "$BEFORE" = "success" ] && SUCCESS_BEFORE=$((SUCCESS_BEFORE + 1))
-                [ "$BEFORE" = "failed" ] && FAILED_BEFORE=$((FAILED_BEFORE + 1))
-              fi
-            fi
-          done
+  #     - name: Generate summary report
+  #       run: |
+  #         mkdir -p report
 
-          # Overall Status
-          echo "## 📊 Overall Status" >> report/README.md
-          echo "" >> report/README.md
-          echo "| Metric | Count |" >> report/README.md
-          echo "|--------|-------|" >> report/README.md
-          echo "| **Total Packages** | $TOTAL |" >> report/README.md
-          echo "| **Patched Packages** | $PATCHED |" >> report/README.md
-          echo "| **Unpatched Packages** | $UNPATCHED |" >> report/README.md
-          echo "" >> report/README.md
-          echo "### Patch Results" >> report/README.md
-          echo "| Result | Count |" >> report/README.md
-          echo "|--------|-------|" >> report/README.md
-          echo "| ✅ Fixed | $FIXED |" >> report/README.md
-          echo "| ❌ Regressions | $REGRESSION |" >> report/README.md
-          echo "| ⚠️  Still Failing | $STILL_FAILING |" >> report/README.md
-          echo "| ℹ️  No Change | $NO_CHANGE |" >> report/README.md
-          echo "" >> report/README.md
+  #         # Generate README.md with summary
+  #         echo "# Invenio Bugfix Verification Results" > report/README.md
+  #         echo "" >> report/README.md
+  #         echo "_Last updated: $(date -u +"%Y-%m-%d %H:%M:%S UTC")_" >> report/README.md
+  #         echo "" >> report/README.md
 
-          # List of patches
-          echo "## 🔧 Configured Patches" >> report/README.md
-          echo "" >> report/README.md
+  #         # Calculate overall statistics
+  #         TOTAL=0
+  #         PATCHED=0
+  #         UNPATCHED=0
+  #         FIXED=0
+  #         REGRESSION=0
+  #         NO_CHANGE=0
+  #         STILL_FAILING=0
+  #         SUCCESS_BEFORE=0
+  #         FAILED_BEFORE=0
+  #         SUCCESS_AFTER=0
+  #         FAILED_AFTER=0
 
-          # Extract unique patches from all result files
-          PATCHES_FOUND=false
-          declare -A PATCH_LIST
-          for dir in artifacts/test-results-*/; do
-            if [ -f "$dir/result-summary.json" ]; then
-              APPLIES=$(jq -r '.patch_applies' "$dir/result-summary.json")
-              if [ "$APPLIES" = "true" ]; then
-                PATCHED_PKGS=$(jq -r '.patched_packages' "$dir/result-summary.json")
-                if [ -n "$PATCHED_PKGS" ] && [ "$PATCHED_PKGS" != "null" ]; then
-                  PATCHES_FOUND=true
-                  for pkg in $PATCHED_PKGS; do
-                    PATCH_LIST[$pkg]=1
-                  done
-                fi
-              fi
-            fi
-          done
+  #         for dir in artifacts/test-results-*/; do
+  #           if [ -f "$dir/result-summary.json" ]; then
+  #             TOTAL=$((TOTAL + 1))
+  #             APPLIES=$(jq -r '.patch_applies' "$dir/result-summary.json")
 
-          # Patches from patches.json
-          echo "## 🔄 Patched Packages" >> report/README.md
-          echo "" >> report/README.md
-          echo "| Package | Patches Applied | Before | After | Result |" >> report/README.md
-          echo "|---------|----------------|--------|-------|--------|" >> report/README.md
+  #             if [ "$APPLIES" = "true" ]; then
+  #               PATCHED=$((PATCHED + 1))
+  #               RESULT=$(jq -r '.result' "$dir/result-summary.json")
+  #               case $RESULT in
+  #                 fixed) FIXED=$((FIXED + 1)) ;;
+  #                 regression) REGRESSION=$((REGRESSION + 1)) ;;
+  #                 still-failing) STILL_FAILING=$((STILL_FAILING + 1)) ;;
+  #                 *) NO_CHANGE=$((NO_CHANGE + 1)) ;;
+  #               esac
 
-          for dir in artifacts/test-results-*/; do
-            if [ -f "$dir/result-summary.json" ]; then
-              HAS_PATCH=$(jq -r '.has_patch' "$dir/result-summary.json")
-              if [ "$HAS_PATCH" = "true" ]; then
-                PACKAGE=$(jq -r '.package' "$dir/result-summary.json")
-                PATCHED_PKGS=$(jq -r '.patched_packages' "$dir/result-summary.json" | tr '\n' ' ')
-                BEFORE=$(jq -r '.before_status' "$dir/result-summary.json")
-                AFTER=$(jq -r '.after_status' "$dir/result-summary.json")
-                RESULT_ICON=$(jq -r '.result_icon' "$dir/result-summary.json")
-                RESULT_TEXT=$(jq -r '.result_text' "$dir/result-summary.json")
-                
-                # Create package directory and copy test outputs
-                mkdir -p "report/$PACKAGE"
-                if [ -f "$dir/test-output-before.txt" ]; then
-                  cp "$dir/test-output-before.txt" "report/$PACKAGE/"
-                fi
-                if [ -f "$dir/test-output-after.txt" ]; then
-                  cp "$dir/test-output-after.txt" "report/$PACKAGE/"
-                fi
-                if [ -f "$dir/test-diff.txt" ]; then
-                  cp "$dir/test-diff.txt" "report/$PACKAGE/"
-                fi
-                
-                # Format status
-                case $BEFORE in
-                  success) BEFORE_STATUS="✅ Pass" ;;
-                  failed) BEFORE_STATUS="❌ Fail" ;;
-                  skipped) BEFORE_STATUS="⏭️  Skip" ;;
-                  *) BEFORE_STATUS="❓ Unknown" ;;
-                esac
-                
-                case $AFTER in
-                  success) AFTER_STATUS="✅ Pass" ;;
-                  failed) AFTER_STATUS="❌ Fail" ;;
-                  skipped) AFTER_STATUS="⏭️  Skip" ;;
-                  *) AFTER_STATUS="❓ Unknown" ;;
-                esac
-                
-                # Use result_icon and result_text from artifacts
-                if [ -n "$RESULT_ICON" ] && [ "$RESULT_ICON" != "null" ]; then
-                  RESULT_STATUS="$RESULT_ICON $RESULT_TEXT"
-                else
-                  RESULT_STATUS="❓ Unknown"
-                fi
-                
-                # Create links for test outputs
-                LINKS=""
-                if [ -f "report/$PACKAGE/test-output-before.txt" ]; then
-                  LINKS="$LINKS [before]($PACKAGE/test-output-before.txt)"
-                fi
-                if [ -f "report/$PACKAGE/test-output-after.txt" ]; then
-                  [ -n "$LINKS" ] && LINKS="$LINKS "
-                  LINKS="$LINKS [after]($PACKAGE/test-output-after.txt)"
-                fi
-                if [ -f "report/$PACKAGE/test-diff.txt" ]; then
-                  [ -n "$LINKS" ] && LINKS="$LINKS "
-                  LINKS="$LINKS [diff]($PACKAGE/test-diff.txt)"
-                fi
-                
-                if [ -n "$LINKS" ]; then
-                  PACKAGE_DISPLAY="\`$PACKAGE\` <br/> $LINKS"
-                else
-                  PACKAGE_DISPLAY="\`$PACKAGE\`"
-                fi
-                
-                echo "| $PACKAGE_DISPLAY | $PATCHED_PKGS | $BEFORE_STATUS | $AFTER_STATUS | $RESULT_STATUS |" >> report/README.md
-              fi
-            fi
-          done
-          echo "" >> report/README.md
+  #               BEFORE=$(jq -r '.before_status' "$dir/result-summary.json")
+  #               AFTER=$(jq -r '.after_status' "$dir/result-summary.json")
+  #               [ "$BEFORE" = "success" ] && SUCCESS_BEFORE=$((SUCCESS_BEFORE + 1))
+  #               [ "$BEFORE" = "failed" ] && FAILED_BEFORE=$((FAILED_BEFORE + 1))
+  #               [ "$AFTER" = "success" ] && SUCCESS_AFTER=$((SUCCESS_AFTER + 1))
+  #               [ "$AFTER" = "failed" ] && FAILED_AFTER=$((FAILED_AFTER + 1))
+  #             else
+  #               UNPATCHED=$((UNPATCHED + 1))
+  #               BEFORE=$(jq -r '.before_status' "$dir/result-summary.json")
+  #               [ "$BEFORE" = "success" ] && SUCCESS_BEFORE=$((SUCCESS_BEFORE + 1))
+  #               [ "$BEFORE" = "failed" ] && FAILED_BEFORE=$((FAILED_BEFORE + 1))
+  #             fi
+  #           fi
+  #         done
 
-          # Packages that do not depend on patched packages
-          echo "## 📦 Packages that do not depend on patched packages" >> report/README.md
-          echo "" >> report/README.md
-          echo "| Package | Build Status |" >> report/README.md
-          echo "|---------|--------------|" >> report/README.md
+  #         # Overall Status
+  #         echo "## 📊 Overall Status" >> report/README.md
+  #         echo "" >> report/README.md
+  #         echo "| Metric | Count |" >> report/README.md
+  #         echo "|--------|-------|" >> report/README.md
+  #         echo "| **Total Packages** | $TOTAL |" >> report/README.md
+  #         echo "| **Patched Packages** | $PATCHED |" >> report/README.md
+  #         echo "| **Unpatched Packages** | $UNPATCHED |" >> report/README.md
+  #         echo "" >> report/README.md
+  #         echo "### Patch Results" >> report/README.md
+  #         echo "| Result | Count |" >> report/README.md
+  #         echo "|--------|-------|" >> report/README.md
+  #         echo "| ✅ Fixed | $FIXED |" >> report/README.md
+  #         echo "| ❌ Regressions | $REGRESSION |" >> report/README.md
+  #         echo "| ⚠️  Still Failing | $STILL_FAILING |" >> report/README.md
+  #         echo "| ℹ️  No Change | $NO_CHANGE |" >> report/README.md
+  #         echo "" >> report/README.md
 
-          for dir in artifacts/test-results-*/; do
-            if [ -f "$dir/result-summary.json" ]; then
-              APPLIES=$(jq -r '.patch_applies' "$dir/result-summary.json")
-              HAS_PATCH=$(jq -r '.has_patch' "$dir/result-summary.json")
-              if [ "$APPLIES" != "true" ] && [ "$HAS_PATCH" != "true" ]; then
-                PACKAGE=$(jq -r '.package' "$dir/result-summary.json")
-                BEFORE=$(jq -r '.before_status' "$dir/result-summary.json")
-                
-                # Create package directory and copy test output
-                mkdir -p "report/$PACKAGE"
-                if [ -f "$dir/test-output-before.txt" ]; then
-                  cp "$dir/test-output-before.txt" "report/$PACKAGE/"
-                fi
-                
-                case $BEFORE in
-                  success) STATUS="✅ Success" ;;
-                  failed) STATUS="❌ Failed" ;;
-                  skipped) STATUS="⏭️  Skipped" ;;
-                  *) STATUS="❓ Unknown" ;;
-                esac
-                
-                # Create link for test output if it exists
-                if [ -f "report/$PACKAGE/test-output-before.txt" ]; then
-                  PACKAGE_DISPLAY="\`$PACKAGE\` <br/> [output]($PACKAGE/test-output-before.txt)"
-                else
-                  PACKAGE_DISPLAY="\`$PACKAGE\`"
-                fi
-                
-                echo "| $PACKAGE_DISPLAY | $STATUS |" >> report/README.md
-              fi
-            fi
-          done
-          echo "" >> report/README.md
+  #         # List of patches
+  #         echo "## 🔧 Configured Patches" >> report/README.md
+  #         echo "" >> report/README.md
 
-          # Packages that depend on patched packages
-          echo "## 🔄 Packages that depend on patched packages" >> report/README.md
-          echo "" >> report/README.md
-          echo "| Package | Patches Applied | Before | After | Result |" >> report/README.md
-          echo "|---------|----------------|--------|-------|--------|" >> report/README.md
+  #         # Extract unique patches from all result files
+  #         PATCHES_FOUND=false
+  #         declare -A PATCH_LIST
+  #         for dir in artifacts/test-results-*/; do
+  #           if [ -f "$dir/result-summary.json" ]; then
+  #             APPLIES=$(jq -r '.patch_applies' "$dir/result-summary.json")
+  #             if [ "$APPLIES" = "true" ]; then
+  #               PATCHED_PKGS=$(jq -r '.patched_packages' "$dir/result-summary.json")
+  #               if [ -n "$PATCHED_PKGS" ] && [ "$PATCHED_PKGS" != "null" ]; then
+  #                 PATCHES_FOUND=true
+  #                 for pkg in $PATCHED_PKGS; do
+  #                   PATCH_LIST[$pkg]=1
+  #                 done
+  #               fi
+  #             fi
+  #           fi
+  #         done
 
-          for dir in artifacts/test-results-*/; do
-            if [ -f "$dir/result-summary.json" ]; then
-              APPLIES=$(jq -r '.patch_applies' "$dir/result-summary.json")
-              if [ "$APPLIES" = "true" ]; then
-                PACKAGE=$(jq -r '.package' "$dir/result-summary.json")
-                PATCHED_PKGS=$(jq -r '.patched_packages' "$dir/result-summary.json" | tr '\n' ' ')
-                BEFORE=$(jq -r '.before_status' "$dir/result-summary.json")
-                AFTER=$(jq -r '.after_status' "$dir/result-summary.json")
-                RESULT_ICON=$(jq -r '.result_icon' "$dir/result-summary.json")
-                RESULT_TEXT=$(jq -r '.result_text' "$dir/result-summary.json")
-                
-                # Create package directory and copy test outputs
-                mkdir -p "report/$PACKAGE"
-                if [ -f "$dir/test-output-before.txt" ]; then
-                  cp "$dir/test-output-before.txt" "report/$PACKAGE/"
-                fi
-                if [ -f "$dir/test-output-after.txt" ]; then
-                  cp "$dir/test-output-after.txt" "report/$PACKAGE/"
-                fi
-                if [ -f "$dir/test-diff.txt" ]; then
-                  cp "$dir/test-diff.txt" "report/$PACKAGE/"
-                fi
-                
-                # Format status
-                case $BEFORE in
-                  success) BEFORE_STATUS="✅ Pass" ;;
-                  failed) BEFORE_STATUS="❌ Fail" ;;
-                  skipped) BEFORE_STATUS="⏭️  Skip" ;;
-                  *) BEFORE_STATUS="❓ Unknown" ;;
-                esac
-                
-                case $AFTER in
-                  success) AFTER_STATUS="✅ Pass" ;;
-                  failed) AFTER_STATUS="❌ Fail" ;;
-                  skipped) AFTER_STATUS="⏭️  Skip" ;;
-                  *) AFTER_STATUS="❓ Unknown" ;;
-                esac
-                
-                # Use result_icon and result_text from artifacts
-                if [ -n "$RESULT_ICON" ] && [ "$RESULT_ICON" != "null" ]; then
-                  RESULT_STATUS="$RESULT_ICON $RESULT_TEXT"
-                else
-                  RESULT_STATUS="❓ Unknown"
-                fi
-                
-                # Create links for test outputs
-                LINKS=""
-                if [ -f "report/$PACKAGE/test-output-before.txt" ]; then
-                  LINKS="$LINKS [before]($PACKAGE/test-output-before.txt)"
-                fi
-                if [ -f "report/$PACKAGE/test-output-after.txt" ]; then
-                  [ -n "$LINKS" ] && LINKS="$LINKS "
-                  LINKS="$LINKS [after]($PACKAGE/test-output-after.txt)"
-                fi
-                if [ -f "report/$PACKAGE/test-diff.txt" ]; then
-                  [ -n "$LINKS" ] && LINKS="$LINKS "
-                  LINKS="$LINKS [diff]($PACKAGE/test-diff.txt)"
-                fi
-                
-                if [ -n "$LINKS" ]; then
-                  PACKAGE_DISPLAY="\`$PACKAGE\` <br/> $LINKS"
-                else
-                  PACKAGE_DISPLAY="\`$PACKAGE\`"
-                fi
-                
-                echo "| $PACKAGE_DISPLAY | $PATCHED_PKGS | $BEFORE_STATUS | $AFTER_STATUS | $RESULT_STATUS |" >> report/README.md
-              fi
-            fi
-          done
-          echo "" >> report/README.md
+  #         # Patches from patches.json
+  #         echo "## 🔄 Patched Packages" >> report/README.md
+  #         echo "" >> report/README.md
+  #         echo "| Package | Patches Applied | Before | After | Result |" >> report/README.md
+  #         echo "|---------|----------------|--------|-------|--------|" >> report/README.md
 
-          echo "---" >> report/README.md
-          echo "" >> report/README.md
-          echo "_For detailed test outputs and diffs, see the [full report](https://mesemus.github.io/invenio-bug-verification/)._" >> report/README.md
+  #         for dir in artifacts/test-results-*/; do
+  #           if [ -f "$dir/result-summary.json" ]; then
+  #             HAS_PATCH=$(jq -r '.has_patch' "$dir/result-summary.json")
+  #             if [ "$HAS_PATCH" = "true" ]; then
+  #               PACKAGE=$(jq -r '.package' "$dir/result-summary.json")
+  #               PATCHED_PKGS=$(jq -r '.patched_packages' "$dir/result-summary.json" | tr '\n' ' ')
+  #               BEFORE=$(jq -r '.before_status' "$dir/result-summary.json")
+  #               AFTER=$(jq -r '.after_status' "$dir/result-summary.json")
+  #               RESULT_ICON=$(jq -r '.result_icon' "$dir/result-summary.json")
+  #               RESULT_TEXT=$(jq -r '.result_text' "$dir/result-summary.json")
 
-          cat report/README.md
+  #               # Create package directory and copy test outputs
+  #               mkdir -p "report/$PACKAGE"
+  #               if [ -f "$dir/test-output-before.txt" ]; then
+  #                 cp "$dir/test-output-before.txt" "report/$PACKAGE/"
+  #               fi
+  #               if [ -f "$dir/test-output-after.txt" ]; then
+  #                 cp "$dir/test-output-after.txt" "report/$PACKAGE/"
+  #               fi
+  #               if [ -f "$dir/test-diff.txt" ]; then
+  #                 cp "$dir/test-diff.txt" "report/$PACKAGE/"
+  #               fi
 
-      - name: Convert markdown to HTML
-        uses: wranders/markdown-to-pages-action@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          files: |-
-            report/README.md
+  #               # Format status
+  #               case $BEFORE in
+  #                 success) BEFORE_STATUS="✅ Pass" ;;
+  #                 failed) BEFORE_STATUS="❌ Fail" ;;
+  #                 skipped) BEFORE_STATUS="⏭️  Skip" ;;
+  #                 *) BEFORE_STATUS="❓ Unknown" ;;
+  #               esac
 
-      - run: cp -rf report/* ./dist/
-      - run: mv ./dist/report/index.html ./dist/index.html
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: dist
+  #               case $AFTER in
+  #                 success) AFTER_STATUS="✅ Pass" ;;
+  #                 failed) AFTER_STATUS="❌ Fail" ;;
+  #                 skipped) AFTER_STATUS="⏭️  Skip" ;;
+  #                 *) AFTER_STATUS="❓ Unknown" ;;
+  #               esac
 
-      - name: Upload README as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: verification-readme
-          path: report/
-          retention-days: 90
+  #               # Use result_icon and result_text from artifacts
+  #               if [ -n "$RESULT_ICON" ] && [ "$RESULT_ICON" != "null" ]; then
+  #                 RESULT_STATUS="$RESULT_ICON $RESULT_TEXT"
+  #               else
+  #                 RESULT_STATUS="❓ Unknown"
+  #               fi
 
-      - name: Add README to job summary
-        run: |
-          cat report/README.md >> $GITHUB_STEP_SUMMARY
+  #               # Create links for test outputs
+  #               LINKS=""
+  #               if [ -f "report/$PACKAGE/test-output-before.txt" ]; then
+  #                 LINKS="$LINKS [before]($PACKAGE/test-output-before.txt)"
+  #               fi
+  #               if [ -f "report/$PACKAGE/test-output-after.txt" ]; then
+  #                 [ -n "$LINKS" ] && LINKS="$LINKS "
+  #                 LINKS="$LINKS [after]($PACKAGE/test-output-after.txt)"
+  #               fi
+  #               if [ -f "report/$PACKAGE/test-diff.txt" ]; then
+  #                 [ -n "$LINKS" ] && LINKS="$LINKS "
+  #                 LINKS="$LINKS [diff]($PACKAGE/test-diff.txt)"
+  #               fi
 
-  deploy:
-    if: always()
-    needs: generate-report
-    runs-on: ubuntu-latest
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - uses: actions/deploy-pages@v4
-        id: deployment
+  #               if [ -n "$LINKS" ]; then
+  #                 PACKAGE_DISPLAY="\`$PACKAGE\` <br/> $LINKS"
+  #               else
+  #                 PACKAGE_DISPLAY="\`$PACKAGE\`"
+  #               fi
+
+  #               echo "| $PACKAGE_DISPLAY | $PATCHED_PKGS | $BEFORE_STATUS | $AFTER_STATUS | $RESULT_STATUS |" >> report/README.md
+  #             fi
+  #           fi
+  #         done
+  #         echo "" >> report/README.md
+
+  #         # Packages that do not depend on patched packages
+  #         echo "## 📦 Packages that do not depend on patched packages" >> report/README.md
+  #         echo "" >> report/README.md
+  #         echo "| Package | Build Status |" >> report/README.md
+  #         echo "|---------|--------------|" >> report/README.md
+
+  #         for dir in artifacts/test-results-*/; do
+  #           if [ -f "$dir/result-summary.json" ]; then
+  #             APPLIES=$(jq -r '.patch_applies' "$dir/result-summary.json")
+  #             HAS_PATCH=$(jq -r '.has_patch' "$dir/result-summary.json")
+  #             if [ "$APPLIES" != "true" ] && [ "$HAS_PATCH" != "true" ]; then
+  #               PACKAGE=$(jq -r '.package' "$dir/result-summary.json")
+  #               BEFORE=$(jq -r '.before_status' "$dir/result-summary.json")
+
+  #               # Create package directory and copy test output
+  #               mkdir -p "report/$PACKAGE"
+  #               if [ -f "$dir/test-output-before.txt" ]; then
+  #                 cp "$dir/test-output-before.txt" "report/$PACKAGE/"
+  #               fi
+
+  #               case $BEFORE in
+  #                 success) STATUS="✅ Success" ;;
+  #                 failed) STATUS="❌ Failed" ;;
+  #                 skipped) STATUS="⏭️  Skipped" ;;
+  #                 *) STATUS="❓ Unknown" ;;
+  #               esac
+
+  #               # Create link for test output if it exists
+  #               if [ -f "report/$PACKAGE/test-output-before.txt" ]; then
+  #                 PACKAGE_DISPLAY="\`$PACKAGE\` <br/> [output]($PACKAGE/test-output-before.txt)"
+  #               else
+  #                 PACKAGE_DISPLAY="\`$PACKAGE\`"
+  #               fi
+
+  #               echo "| $PACKAGE_DISPLAY | $STATUS |" >> report/README.md
+  #             fi
+  #           fi
+  #         done
+  #         echo "" >> report/README.md
+
+  #         # Packages that depend on patched packages
+  #         echo "## 🔄 Packages that depend on patched packages" >> report/README.md
+  #         echo "" >> report/README.md
+  #         echo "| Package | Patches Applied | Before | After | Result |" >> report/README.md
+  #         echo "|---------|----------------|--------|-------|--------|" >> report/README.md
+
+  #         for dir in artifacts/test-results-*/; do
+  #           if [ -f "$dir/result-summary.json" ]; then
+  #             APPLIES=$(jq -r '.patch_applies' "$dir/result-summary.json")
+  #             if [ "$APPLIES" = "true" ]; then
+  #               PACKAGE=$(jq -r '.package' "$dir/result-summary.json")
+  #               PATCHED_PKGS=$(jq -r '.patched_packages' "$dir/result-summary.json" | tr '\n' ' ')
+  #               BEFORE=$(jq -r '.before_status' "$dir/result-summary.json")
+  #               AFTER=$(jq -r '.after_status' "$dir/result-summary.json")
+  #               RESULT_ICON=$(jq -r '.result_icon' "$dir/result-summary.json")
+  #               RESULT_TEXT=$(jq -r '.result_text' "$dir/result-summary.json")
+
+  #               # Create package directory and copy test outputs
+  #               mkdir -p "report/$PACKAGE"
+  #               if [ -f "$dir/test-output-before.txt" ]; then
+  #                 cp "$dir/test-output-before.txt" "report/$PACKAGE/"
+  #               fi
+  #               if [ -f "$dir/test-output-after.txt" ]; then
+  #                 cp "$dir/test-output-after.txt" "report/$PACKAGE/"
+  #               fi
+  #               if [ -f "$dir/test-diff.txt" ]; then
+  #                 cp "$dir/test-diff.txt" "report/$PACKAGE/"
+  #               fi
+
+  #               # Format status
+  #               case $BEFORE in
+  #                 success) BEFORE_STATUS="✅ Pass" ;;
+  #                 failed) BEFORE_STATUS="❌ Fail" ;;
+  #                 skipped) BEFORE_STATUS="⏭️  Skip" ;;
+  #                 *) BEFORE_STATUS="❓ Unknown" ;;
+  #               esac
+
+  #               case $AFTER in
+  #                 success) AFTER_STATUS="✅ Pass" ;;
+  #                 failed) AFTER_STATUS="❌ Fail" ;;
+  #                 skipped) AFTER_STATUS="⏭️  Skip" ;;
+  #                 *) AFTER_STATUS="❓ Unknown" ;;
+  #               esac
+
+  #               # Use result_icon and result_text from artifacts
+  #               if [ -n "$RESULT_ICON" ] && [ "$RESULT_ICON" != "null" ]; then
+  #                 RESULT_STATUS="$RESULT_ICON $RESULT_TEXT"
+  #               else
+  #                 RESULT_STATUS="❓ Unknown"
+  #               fi
+
+  #               # Create links for test outputs
+  #               LINKS=""
+  #               if [ -f "report/$PACKAGE/test-output-before.txt" ]; then
+  #                 LINKS="$LINKS [before]($PACKAGE/test-output-before.txt)"
+  #               fi
+  #               if [ -f "report/$PACKAGE/test-output-after.txt" ]; then
+  #                 [ -n "$LINKS" ] && LINKS="$LINKS "
+  #                 LINKS="$LINKS [after]($PACKAGE/test-output-after.txt)"
+  #               fi
+  #               if [ -f "report/$PACKAGE/test-diff.txt" ]; then
+  #                 [ -n "$LINKS" ] && LINKS="$LINKS "
+  #                 LINKS="$LINKS [diff]($PACKAGE/test-diff.txt)"
+  #               fi
+
+  #               if [ -n "$LINKS" ]; then
+  #                 PACKAGE_DISPLAY="\`$PACKAGE\` <br/> $LINKS"
+  #               else
+  #                 PACKAGE_DISPLAY="\`$PACKAGE\`"
+  #               fi
+
+  #               echo "| $PACKAGE_DISPLAY | $PATCHED_PKGS | $BEFORE_STATUS | $AFTER_STATUS | $RESULT_STATUS |" >> report/README.md
+  #             fi
+  #           fi
+  #         done
+  #         echo "" >> report/README.md
+
+  #         echo "---" >> report/README.md
+  #         echo "" >> report/README.md
+  #         echo "_For detailed test outputs and diffs, see the [full report](https://mesemus.github.io/invenio-bug-verification/)._" >> report/README.md
+
+  #         cat report/README.md
+
+  #     - name: Convert markdown to HTML
+  #       uses: wranders/markdown-to-pages-action@v1
+  #       with:
+  #         token: ${{ secrets.GITHUB_TOKEN }}
+  #         files: |-
+  #           report/README.md
+
+  #     - run: cp -rf report/* ./dist/
+  #     - run: mv ./dist/report/index.html ./dist/index.html
+  #     - uses: actions/upload-pages-artifact@v3
+  #       with:
+  #         path: dist
+
+  #     - name: Upload README as artifact
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: verification-readme
+  #         path: report/
+  #         retention-days: 90
+
+  #     - name: Add README to job summary
+  #       run: |
+  #         cat report/README.md >> $GITHUB_STEP_SUMMARY
+
+  # deploy:
+  #   if: always()
+  #   needs: generate-report
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     pages: write
+  #     id-token: write
+  #   environment:
+  #     name: github-pages
+  #     url: ${{ steps.deployment.outputs.page_url }}
+  #   steps:
+  #     - uses: actions/deploy-pages@v4
+  #       id: deployment
