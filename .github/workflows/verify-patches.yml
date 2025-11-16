@@ -488,7 +488,7 @@ jobs:
           TEST_NAME="${{ inputs.test_name }}"
 
           # Add new entry to reports.md using Python script
-          python3 scripts/add_summary_line.py reports/reports.md "$TEST_NAME" "$REPORT_TIMESTAMP" "$STATUS"
+          python3 scripts/add_summary_line.py reports/reports.md patches.json "$TEST_NAME" "$REPORT_TIMESTAMP" "$STATUS"
           cat reports/reports.md
 
       - name: Commit and push reports index

@@ -2,20 +2,43 @@
 """
 Add a new summary line to reports.md after the table header.
 
-Usage: add_summary_line.py <reports_md_path> <test_name> <report_dir> <status>
+Usage: add_summary_line.py <reports_md_path> <patches_json_path> <test_name> <report_dir> <status>
 
 Inserts a new row into the reports table after the separator line.
 The report_dir should be the directory name (e.g., "2025-11-15_20-49-34").
 The test_name is an optional description of the test run.
+The patches_json_path is used to extract the list of tested patches.
 """
 
+import json
 import re
 import sys
 from pathlib import Path
 
 
+def get_tested_patches(patches_json_path: Path) -> str:
+    """Get comma-separated list of patch names from patches.json."""
+    if not patches_json_path.exists():
+        return ""
+
+    try:
+        with patches_json_path.open("r", encoding="utf-8") as f:
+            patches = json.load(f)
+
+        # Get the keys (package names) as comma-separated list
+        patch_names = list(patches.keys())
+        return ", ".join(sorted(patch_names)) if patch_names else ""
+    except Exception as e:
+        print(f"Warning: Could not read patches.json: {e}", file=sys.stderr)
+        return ""
+
+
 def add_summary_line(
-    reports_md_path: Path, test_name: str, report_dir: str, status: str
+    reports_md_path: Path,
+    patches_json_path: Path,
+    test_name: str,
+    report_dir: str,
+    status: str,
 ) -> None:
     """Add a new summary line to reports.md."""
 
@@ -49,8 +72,11 @@ def add_summary_line(
     # Use test_name if provided, otherwise use empty string
     test_name_display = test_name if test_name else ""
 
-    # Create new row with test name as first column
-    new_row = f"| {test_name_display} | {report_link} | {status} |\n"
+    # Get tested patches
+    patches_tested = get_tested_patches(patches_json_path)
+
+    # Create new row with test name, report link, status, and patches tested
+    new_row = f"| {test_name_display} | {report_link} | {status} | {patches_tested} |\n"
 
     # Insert after separator
     lines.insert(separator_index + 1, new_row)
@@ -62,20 +88,23 @@ def add_summary_line(
 
 def main() -> None:
     """Main entry point."""
-    if len(sys.argv) != 5:
+    if len(sys.argv) != 6:
         print(
-            "Usage: add_summary_line.py <reports_md_path> <test_name> <report_dir> <status>",
+            "Usage: add_summary_line.py <reports_md_path> <patches_json_path> <test_name> <report_dir> <status>",
             file=sys.stderr,
         )
         sys.exit(1)
 
     reports_md_path = Path(sys.argv[1])
-    test_name = sys.argv[2]
-    report_dir = sys.argv[3]
-    status = sys.argv[4]
+    patches_json_path = Path(sys.argv[2])
+    test_name = sys.argv[3]
+    report_dir = sys.argv[4]
+    status = sys.argv[5]
 
     try:
-        add_summary_line(reports_md_path, test_name, report_dir, status)
+        add_summary_line(
+            reports_md_path, patches_json_path, test_name, report_dir, status
+        )
         print(f"✓ Updated {reports_md_path}")
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)

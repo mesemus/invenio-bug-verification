@@ -130,6 +130,41 @@ def calculate_statistics(artifacts_dir: Path) -> dict[str, int]:
     return stats
 
 
+def load_configured_patches(patches_json_path: Path) -> list[dict[str, str]]:
+    """Load configured patches from patches.json."""
+    if not patches_json_path.exists():
+        return []
+
+    try:
+        with patches_json_path.open("r") as f:
+            patches_data = json.load(f)
+
+        configured_patches = []
+        for package, info in patches_data.items():
+            repo_url = info.get("url", "").rstrip(".git")
+            branch = info.get("branch", "")
+
+            # Create tree URL only if branch is provided
+            if branch:
+                repo_tree_url = f"{repo_url}/tree/{branch}"
+            else:
+                repo_tree_url = repo_url
+
+            configured_patches.append(
+                {
+                    "package": package,
+                    "repo_url": repo_url,
+                    "branch": branch,
+                    "repo_tree_url": repo_tree_url,
+                }
+            )
+
+        return configured_patches
+    except Exception as e:
+        print(f"Warning: Could not read patches.json: {e}", file=sys.stderr)
+        return []
+
+
 def generate_report(artifacts_dir: Path, report_dir: Path, report_file: Path) -> None:
     """Generate the markdown report."""
 
@@ -168,6 +203,10 @@ def generate_report(artifacts_dir: Path, report_dir: Path, report_file: Path) ->
     if warnings_file.exists():
         warnings_content = warnings_file.read_text()
 
+    # Load configured patches from patches.json
+    patches_json_path = Path(__file__).parent.parent / "patches.json"
+    configured_patches = load_configured_patches(patches_json_path)
+
     # Setup Jinja2 environment
     template_dir = Path(__file__).parent / "templates"
     env = Environment(
@@ -180,6 +219,7 @@ def generate_report(artifacts_dir: Path, report_dir: Path, report_file: Path) ->
     content = template.render(
         timestamp=timestamp,
         stats=stats,
+        configured_patches=configured_patches,
         patched_packages=patched_packages,
         unpatched_packages=unpatched_packages,
         dependency_packages=dependency_packages,

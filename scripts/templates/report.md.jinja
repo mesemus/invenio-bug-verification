@@ -20,6 +20,12 @@ _Last updated: {{ timestamp }}_
 
 ## 🔧 Configured Patches
 
+| Patched Package | Repository | Branch |
+|----------------|------------|--------|
+{% for patch in configured_patches -%}
+| [{{ patch.package }}]({{ patch.repo_tree_url }}) | {{ patch.repo_url }} | {{ patch.branch }} |
+{% endfor %}
+
 ## 🔄 Patched Packages
 
 | Package | Patches Applied | Original | Patched | Result |
