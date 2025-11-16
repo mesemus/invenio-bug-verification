@@ -8,6 +8,11 @@ on:
         required: false
         type: boolean
         default: false
+      run_original_tests:
+        description: "Run original tests (when patched tests fail)"
+        required: false
+        type: boolean
+        default: true
 
 env:
   PYTHONUNBUFFERED: 1
@@ -190,7 +195,7 @@ jobs:
       # if the previous step failed, we will try to run the tests without patches
       - name: Clone package repository for tests without patches
         continue-on-error: true
-        if: env.SO_FAR_OK == '1' && steps.test-with-patch.outputs.conclusion == 'failure'
+        if: env.SO_FAR_OK == '1' && steps.test-with-patch.outputs.conclusion == 'failure' && inputs.run_original_tests
         uses: ./.github/actions/clone-package
         with:
           repository-url: ${{ steps.load-patches.outputs.original_repository_url }}
@@ -198,7 +203,7 @@ jobs:
           destination: package-repo
 
       - name: Setup virtual environment and install dependencies for original package tests
-        if: env.SO_FAR_OK == '1' && steps.test-with-patch.outputs.conclusion == 'failure'
+        if: env.SO_FAR_OK == '1' && steps.test-with-patch.outputs.conclusion == 'failure' && inputs.run_original_tests
         continue-on-error: true
         uses: ./.github/actions/setup-venv
         with:
@@ -209,7 +214,7 @@ jobs:
       - name: Run tests on original package without patches
         id: test-without-patch
         continue-on-error: true
-        if: env.SO_FAR_OK == '1' && steps.test-with-patch.outputs.conclusion == 'failure'
+        if: env.SO_FAR_OK == '1' && steps.test-with-patch.outputs.conclusion == 'failure' && inputs.run_original_tests
         uses: ./.github/actions/run-tests
         with:
           package-path: package-repo
@@ -400,6 +405,10 @@ jobs:
     steps:
       - name: Checkout verification repository
         uses: actions/checkout@v4
+
+      - name: Pull the latest changes
+        run: |
+          git pull -f
 
       - name: Download all artifacts
         uses: actions/download-artifact@v4
