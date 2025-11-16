@@ -2,10 +2,13 @@
 """
 Extract packages to test from uv.lock file based on config.json rules.
 
-Usage: extract_packages_to_test.py <uv_lock_path> <config.json> <variables.sh>
+Usage: extract_packages_to_test.py <uv_lock_path> <config.json> <variables.sh> [previous_report_dir]
 
 Extracts package names from uv.lock that match the regex patterns in config.json
 and don't match exclude patterns, then outputs them to variables.sh.
+
+If previous_report_dir is provided, packages with successful test results in that
+report will be moved to done_packages instead of packages.
 """
 
 import json
@@ -75,7 +78,60 @@ def filter_packages(packages: list[str], config_path: Path) -> list[str]:
     return filtered_packages
 
 
-def extract_packages(uv_lock_path: Path, config_path: Path, output_path: Path) -> None:
+def check_previous_results(
+    packages: list[str], previous_report_dir: Path | None
+) -> tuple[list[str], list[str]]:
+    """
+    Split packages into those to test and those already done.
+
+    Returns:
+        Tuple of (packages_to_test, done_packages)
+    """
+    if not previous_report_dir or not previous_report_dir.exists():
+        return packages, []
+
+    packages_to_test: list[str] = []
+    done_packages: list[str] = []
+
+    for package in packages:
+        summary_file = (
+            previous_report_dir / "packages" / package / "result-summary.json"
+        )
+
+        if summary_file.exists():
+            try:
+                with summary_file.open("r") as f:
+                    summary = json.load(f)
+
+                # Check if tests were successful
+                original = summary.get("original_tests_outcome")
+                patched = summary.get("patched_tests_outcome")
+
+                if patched is not None:
+                    is_success = patched == "success"
+                else:
+                    is_success = original == "success"
+
+                if is_success:
+                    print(f"✓ {package} already passed in previous report")
+                    done_packages.append(package)
+                else:
+                    packages_to_test.append(package)
+            except (json.JSONDecodeError, KeyError) as e:
+                print(f"⚠️  Could not read previous result for {package}: {e}")
+                packages_to_test.append(package)
+        else:
+            packages_to_test.append(package)
+
+    return packages_to_test, done_packages
+
+
+def extract_packages(
+    uv_lock_path: Path,
+    config_path: Path,
+    output_path: Path,
+    previous_report_dir: Path | None = None,
+) -> None:
     """Extract and filter packages, then write to variables.sh."""
 
     # Extract all packages from uv.lock
@@ -86,24 +142,36 @@ def extract_packages(uv_lock_path: Path, config_path: Path, output_path: Path) -
     filtered_packages = filter_packages(all_packages, config_path)
     print(f"Filtered to {len(filtered_packages)} packages")
 
-    # Sort for consistency
-    filtered_packages.sort()
+    # Check previous results if provided
+    packages_to_test, done_packages = check_previous_results(
+        filtered_packages, previous_report_dir
+    )
 
-    # Write to variables.sh as JSON array
-    packages_json = json.dumps(filtered_packages)
+    # Sort for consistency
+    packages_to_test.sort()
+    done_packages.sort()
+
+    # Write to variables.sh as JSON arrays
+    packages_json = json.dumps(packages_to_test)
+    done_packages_json = json.dumps(done_packages)
 
     with output_path.open("w") as f:
         f.write(f"packages='{packages_json}'\n")
+        f.write(f"done_packages='{done_packages_json}'\n")
 
-    print(f"\n✓ Extracted {len(filtered_packages)} packages to test")
-    if filtered_packages:
-        print(f"Packages: {', '.join(filtered_packages)}")
+    print(f"\n✓ {len(packages_to_test)} packages to test")
+    if packages_to_test:
+        print(f"To test: {', '.join(packages_to_test)}")
+
+    if done_packages:
+        print(f"\n✓ {len(done_packages)} packages already completed")
+        print(f"Done: {', '.join(done_packages)}")
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 4:
+    if len(sys.argv) not in (4, 5):
         print(
-            "Usage: extract_packages_to_test.py <uv_lock_path> <config.json> <variables.sh>",
+            "Usage: extract_packages_to_test.py <uv_lock_path> <config.json> <variables.sh> [previous_report_dir]",
             file=sys.stderr,
         )
         sys.exit(1)
@@ -111,9 +179,10 @@ if __name__ == "__main__":
     uv_lock_path = Path(sys.argv[1])
     config_path = Path(sys.argv[2])
     output_path = Path(sys.argv[3])
+    previous_report_dir = Path(sys.argv[4]) if len(sys.argv) == 5 else None
 
     try:
-        extract_packages(uv_lock_path, config_path, output_path)
+        extract_packages(uv_lock_path, config_path, output_path, previous_report_dir)
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
