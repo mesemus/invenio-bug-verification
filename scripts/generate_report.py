@@ -56,6 +56,8 @@ def create_package_links(report_dir: Path, package: str) -> str:
         ("test-output-original.txt", "original"),
         ("test-output-patched.txt", "patched"),
         ("test-diff.txt", "diff"),
+        ("test-report-original.json", "json-original"),
+        ("test-report-patched.json", "json-patched"),
         ("warnings-original.md", "warnings-original"),
         ("warnings-patched.md", "warnings-patched"),
     ]
