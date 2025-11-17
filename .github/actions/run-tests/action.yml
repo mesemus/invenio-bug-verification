@@ -37,8 +37,6 @@ runs:
         cd ${{ inputs.package-path }}
         source .venv/bin/activate
 
-        uv pip install pytest-json-report --upgrade 
-
         # Create artifacts directory
         mkdir -p ../artifacts
 
@@ -52,12 +50,12 @@ runs:
         if [ "${{ inputs.verbose-pytest }}" = "true" ]; then
           if [ -f run-tests.sh ]; then
             echo "Enabling verbose pytest output (-vv -s)"
-            sed -i 's/python -m pytest /python -m pytest -vv -s /g' run-tests.sh
+            sed -i 's/python -m pytest /python -m pytest -vv -s --showlocals /g' run-tests.sh
           fi
         fi
 
         # Add json report
-        sed -i "s/python -m pytest /python -m pytest --json-report --json-report-file=../artifacts/test-report-${{ inputs.test-type }}.json --json-report-omit=streams /g" run-tests.sh
+        sed -i "s#python -m pytest #python -m pytest --junit-xml=../artifacts/test-report-${{ inputs.test-type }}.xml #g" run-tests.sh
 
         # Start stall detection watchdog in background if enabled
         if [ "$STALL_TIMEOUT" -gt 0 ]; then
