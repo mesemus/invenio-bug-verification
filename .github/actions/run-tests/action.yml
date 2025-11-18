@@ -45,6 +45,7 @@ runs:
         TIMEOUT_TRIGGERED=0
         STALL_TRIGGERED=0
         OUTPUT_FILE="../artifacts/test-output-${{ inputs.test-type }}.txt"
+        OUTPUT_FILE_NO_WARNINGS="../artifacts/test-output-no-warnings-${{ inputs.test-type }}.txt"
 
         # Modify run-tests.sh for verbose pytest if requested
         if [ "${{ inputs.verbose-pytest }}" = "true" ]; then
@@ -164,6 +165,15 @@ runs:
           echo "⏱️  TIMEOUT: Test execution exceeded ${TIMEOUT} minutes" >> "$OUTPUT_FILE"
           echo "🔴 All Python processes were terminated" >> "$OUTPUT_FILE"
           echo "========================================" >> "$OUTPUT_FILE"
+        fi
+
+        # create $OUTPUT_FILE_NO_WARNINGS by removing warning lines from OUTPUT_FILE
+        # Remove strings with "::warning file=". If the line is only a warning, remove the entire line.
+        if [ -f "$OUTPUT_FILE" ]; then
+          # Remove lines that only contain "::warning file=" annotations
+          # Also remove "::warning file=" strings from lines that contain other content
+          grep -v '^::warning file=' "$OUTPUT_FILE" | sed 's/::warning file=[^ ]*//g' > "$OUTPUT_FILE_NO_WARNINGS"
+          echo "✓ Created filtered output without GitHub warning annotations"
         fi
 
         if [ $TEST_EXIT_CODE -ne 0 ] || [ $TIMEOUT_TRIGGERED -eq 1 ] || [ $STALL_TRIGGERED -eq 1 ]; then
