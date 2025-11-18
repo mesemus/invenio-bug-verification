@@ -30,13 +30,21 @@ DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for r
 
 #### Warning 4 - 1 occurrence
 
+DeprecationWarning: No path_separator found in configuration; falling back to legacy splitting on spaces/commas for version_locations.  Consider adding path_separator=os to Alembic config.
+
+| Package | Count |
+|---------|-------|
+| `invenio-db` | 1 |
+
+#### Warning 5 - 1 occurrence
+
 PendingDeprecationWarning: The WSGI_PROXIES configuration is deprecated and it will be removed, use PROXYFIX_CONFIG instead
 
 | Package | Count |
 |---------|-------|
 | `invenio-base` | 1 |
 
-#### Warning 5 - 1 occurrence
+#### Warning 6 - 1 occurrence
 
 UserWarning: Set configuration variable SECRET_KEY with random string
 
@@ -44,7 +52,7 @@ UserWarning: Set configuration variable SECRET_KEY with random string
 |---------|-------|
 | `invenio-app` | 1 |
 
-#### Warning 6 - 1 occurrence
+#### Warning 7 - 1 occurrence
 
 UserWarning: Test
 
@@ -52,7 +60,7 @@ UserWarning: Test
 |---------|-------|
 | `invenio-base` | 1 |
 
-#### Warning 7 - 1 occurrence
+#### Warning 8 - 1 occurrence
 
 UserWarning: Using the in-memory storage for tracking rate limits as no storage was explicitly specified. This is not recommended for production use. See: https://flask-limiter.readthedocs.io#configuring-a-storage-backend for documentation about configuring the storage backend.
 
