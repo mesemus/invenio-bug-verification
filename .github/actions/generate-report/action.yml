@@ -30,7 +30,7 @@ runs:
       run: |
         mkdir -p _repo
 
-    - name: Checkout verification repository
+    - name: Checkout invenio-testrig repository
       uses: actions/checkout@v4
       with:
         path: _repo/repo

@@ -1,4 +1,4 @@
-# invenio-bug-verification
+# invenio-testrig
 
 This repository provides tools for verifying bugfixes in Invenio-based applications.
 
@@ -9,7 +9,7 @@ This repository provides tools for verifying bugfixes in Invenio-based applicati
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/<your-github-account>/invenio-bug-verification.git
+   git clone https://github.com/<your-github-account>/invenio-testrig.git
    ```
 
 2. Switch to a new branch for your changes. The verification workflow creates a lots of commits, so it's best to keep your changes isolated.

@@ -49,7 +49,7 @@ jobs:
       report_timestamp: ${{ steps.create-dir.outputs.report_timestamp }}
 
     steps:
-      - name: Checkout verification repository
+      - name: Checkout invenio-testrig repository
         uses: actions/checkout@v4
 
       - name: Setup Python and UV
@@ -156,7 +156,7 @@ jobs:
       previous_report: ${{ steps.extract.outputs.previous_report }}
 
     steps:
-      - name: Checkout verification repository
+      - name: Checkout invenio-testrig repository
         uses: actions/checkout@v4
 
       - name: Setup Python and UV
@@ -222,7 +222,7 @@ jobs:
         package: ${{ fromJson(needs.extract-tested-packages.outputs.packages) }}
 
     steps:
-      - name: Checkout verification repository
+      - name: Checkout invenio-testrig repository
         uses: actions/checkout@v4
 
       - name: Setup Python and UV
@@ -524,7 +524,7 @@ jobs:
         package: ${{ fromJson(needs.extract-tested-packages.outputs.done_packages) }}
 
     steps:
-      - name: Checkout verification repository
+      - name: Checkout invenio-testrig repository
         uses: actions/checkout@v4
 
       - name: Copy artifacts from previous report
@@ -576,7 +576,7 @@ jobs:
       contents: write
 
     steps:
-      - name: Checkout verification repository
+      - name: Checkout invenio-testrig repository
         uses: actions/checkout@v4
 
       - name: Generate and push report
