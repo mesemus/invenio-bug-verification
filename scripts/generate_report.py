@@ -180,7 +180,7 @@ def load_configured_patches(config_path: Path) -> list[dict[str, str]]:
 
         configured_patches = []
         for package, info in patches_data.items():
-            repo_url = info.get("url", "").rstrip(".git")
+            repo_url = info.get("git", "").rstrip(".git")
             branch = info.get("branch", "")
 
             # Create tree URL only if branch is provided

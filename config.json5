@@ -1,9 +1,9 @@
 { 
     // Patches to apply - custom repositories with fixes/features
     "patches": {
-        // Format: "package-name": { "url": "git-url", "branch": "branch-name" }
+        // Format: "package-name": { "git": "git-url", "branch": "branch-name" }
         "pytest-invenio": {
-            "url": "https://github.com/oarepo/pytest-invenio.git",
+            "git": "https://github.com/oarepo/pytest-invenio.git",
             "branch": "nested-db-session-rollback"
         }
         // Add more patches here as needed

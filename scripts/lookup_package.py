@@ -70,7 +70,7 @@ def lookup_package(config_path: Path, package_name: str) -> None:
 
     if package_name in patches:
         patch_info = patches[package_name]
-        patched_url = patch_info.get("url", "")
+        patched_url = patch_info.get("git", "")
         patched_branch = patch_info.get("branch", "")
 
     # Output bash-compatible variable assignments

@@ -60,7 +60,7 @@ def apply_patches(
 
         if package_name in installed_packages:
             patched_packages.append(package_name)
-            patch_url = patch_info.get("url", "")
+            patch_url = patch_info.get("git", "")
             patch_branch = patch_info.get("branch", "")
 
             if patch_url:
