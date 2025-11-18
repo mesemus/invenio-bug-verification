@@ -1,15 +1,15 @@
 # invenio-bug-verification
 
-This module provides tools for verifying bugfixes in Invenio-based applications.
+This repository provides tools for verifying bugfixes in Invenio-based applications.
 
 ## Usage
 
-0. Fork the repository to your own GitHub account.
+0. Fork this repository to your own GitHub account.
 
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/<your github account>/invenio-bug-verification.git
+   git clone https://github.com/<your-github-account>/invenio-bug-verification.git
    ```
 
 2. Edit the `patches.json` file to specify your patches:
@@ -18,29 +18,51 @@ This module provides tools for verifying bugfixes in Invenio-based applications.
     {
          "invenio-db": {
             "url": "https://github.com/oarepo/invenio-db.git",
-            "branch": "fix-uow",
+            "branch": "fix-uow"
          }
     }
     ```
 
-3. Commit and push your changes either directly to the main branch.
+3. Optionally, adjust the `config.json` file to change global parameters.
 
-4. Wait for the CI pipeline to run the verification tests.
+4. Commit and push your changes to your fork.
+
+5. Go to the Actions tab and start the workflow manually:
+
+   - Click on the "Verify Invenio Patches" workflow.
+   - Click "Run workflow".
+   - Optionally, configure the following inputs:
+     - **Name of the verification run**: A descriptive name for this run (used in the report directory name).
+     - **Continue from previous run**: If enabled, the workflow will continue from the most recent run, skipping packages that were already successfully tested.
+     - **Packages**: Space or comma-separated list of specific packages to test (leave empty to test all packages).
+     - **Run original tests**: If enabled, when patched tests fail, the original tests will be run to confirm the failure is due to the patch.
+     - **Timeout in minutes**: Maximum time allowed for each test run (0 = GitHub default).
+     - **Verbose pytest**: If enabled, pytest will run with verbose output (-vv -s) and caching will be disabled. Use this if tests deadlock to see output in real-time.
+
+6. Wait for the workflow to finish.
+
+7. Navigate to the [generated report](./reports/reports.md).
 
 ## How it works
 
-The CI pipeline will:
+The CI pipeline performs the following steps:
 
-1. Clone the github.com/zenodo/zenodo-rdm maintrunk repository.
-2. Extract all packages from `uv.lock` that start with `invenio-`. Store the result to an output so that it could be used in subsequent matrix build steps.
-3. Run a pipeline for each such package (matrix build from the #2 output):
-   a. Clone the package:
-     - if the mackage is in `patches.json`, clone the specified repository and checkout the specified branch.
-     - otherwise, clone the package from github.com/inveniosoftware.
-   b. Create a virtualenv using uv --seed
-   c. Call the `run-tests.sh` script from this repository to run the tests.
-   d. For each of modules inside the packages.json, if the module is inside the venv,
-      install the patched branch instead. If there is no such module, skip the rest of the steps and mark the package as "no patch".
-   e. Run the tests again
-   f. Compare the test results before and after applying the patch, store the outputs and the diff as an artifact.
-4. Create a summary report of all packages tested, indicating which patches fixed issues/created new and which did not.
+1. **Extract packages**: Clone the `github.com/zenodo/zenodo-rdm` repository and extract all `invenio-*` packages from `uv.lock`. The package list is stored as an output for use in the subsequent matrix build steps.
+
+2. **Test each package** (runs in parallel as a matrix build):
+   
+   a. **Clone the package**:
+      - If the package is listed in `patches.json`, clone the specified repository and branch.
+      - Otherwise, clone the package from `github.com/inveniosoftware`.
+   
+   b. **Set up environment**: Create a virtual environment using `uv --seed`.
+   
+   c. **Apply patches**: For each module listed in `patches.json` that is installed in the virtual environment, install the patched version. If no patches apply, skip to step e.
+   
+   d. **Run tests with patches**: Execute the test suite using the `run-tests.sh` script.
+   
+   e. **Run original tests (if needed)**: If the patched tests fail and "Run original tests" is enabled, clone the original package from `inveniosoftware` and run its tests.
+   
+   f. **Compare results**: Compare test results before and after applying patches. Store test outputs and diffs as artifacts.
+
+3. **Generate report**: Create a summary report of all tested packages, indicating which patches fixed issues, which introduced regressions, and which had no effect.
