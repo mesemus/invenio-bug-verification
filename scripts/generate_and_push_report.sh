@@ -17,8 +17,8 @@ echo "Report timestamp: $REPORT_TIMESTAMP"
 echo "Artifacts directory: $ARTIFACTS_DIR"
 echo "Max attempts: $MAX_ATTEMPTS"
 
-git config user.name "github-actions[bot]"
-git config user.email "github-actions[bot]@users.noreply.github.com"
+git config user.name "github-actions[bot]" > /dev/null 2>&1
+git config user.email "github-actions[bot]@users.noreply.github.com" > /dev/null 2>&1
 
 # Setup virtual environment for report generation
 setup_venv() {
@@ -140,12 +140,12 @@ while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
   
   # 1. Remove all changes in the cloned project
   echo "Resetting repository to clean state..."
-  git reset --hard HEAD
-  git clean -fd
+  git reset --hard HEAD > /dev/null 2>&1
+  git clean -fd > /dev/null 2>&1
   
   # 2. Make the project up to date by pulling/rebasing
   echo "Updating repository..."
-  git pull --rebase origin || {
+  git pull --quiet --rebase origin > /dev/null 2>&1 || {
     echo "⚠️  Failed to pull/rebase, retrying..."
     continue
   }
@@ -155,7 +155,7 @@ while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
   
   # 4. Try to commit and push it
   echo "Committing changes..."
-  git add reports/
+  git add reports/ > /dev/null 2>&1
   
   # Check if there are changes to commit
   if git diff --cached --quiet; then
@@ -164,10 +164,10 @@ while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
     break
   fi
   
-  git commit -m "[skip ci] Add report for $REPORT_TIMESTAMP"
+  git commit --quiet -m "[skip ci] Add report for $REPORT_TIMESTAMP" > /dev/null 2>&1
   
   echo "Pushing changes..."
-  if git push origin; then
+  if git push --quiet origin > /dev/null 2>&1; then
     echo "✓ Successfully pushed report!"
     SUCCESS=true
     break

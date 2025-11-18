@@ -31,6 +31,9 @@ runs:
       uses: actions/download-artifact@v4
       with:
         path: _repo/artifacts
+        github-token: ${{ github.token }}
+      env:
+        ACTIONS_STEP_DEBUG: false
 
     - name: Generate report
       shell: bash
