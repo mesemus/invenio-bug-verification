@@ -159,6 +159,11 @@ jobs:
       - name: Checkout verification repository
         uses: actions/checkout@v4
 
+      - name: Setup Python and UV
+        uses: ./.github/actions/install-python
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
       - name: Clone Zenodo RDM repository
         run: |
           echo "::group::Cloning zenodo-rdm repository"
