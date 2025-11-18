@@ -14,6 +14,10 @@ inputs:
     description: 'Name of the test run'
     required: false
     default: ''
+  report-status:
+    description: 'Status of the report (running or finished)'
+    required: false
+    default: 'running'
 runs:
   using: 'composite'
   steps:
@@ -39,7 +43,7 @@ runs:
       shell: bash
       run: |
         cd _repo/repo
-        bash scripts/generate_and_push_report.sh "${{ inputs.report-dir }}" "${{ inputs.report-file }}" "${{ inputs.report-timestamp }}" "${{ inputs.test-name }}" "../artifacts"
+        bash scripts/generate_and_push_report.sh "${{ inputs.report-dir }}" "${{ inputs.report-file }}" "${{ inputs.report-timestamp }}" "${{ inputs.test-name }}" "../artifacts" "20" "${{ inputs.report-status }}"
 
     - name: Add report summary
       shell: bash

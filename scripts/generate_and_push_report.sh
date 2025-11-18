@@ -2,7 +2,7 @@
 set -e
 
 # This script generates a report from test artifacts and pushes it to the repository
-# Usage: generate_and_push_report.sh <report_dir> <report_file> <report_timestamp> <test_name> [artifacts_dir] [max_attempts]
+# Usage: generate_and_push_report.sh <report_dir> <report_file> <report_timestamp> <test_name> [artifacts_dir] [max_attempts] [report_status]
 
 REPORT_DIR="$1"
 REPORT_FILE="$2"
@@ -10,12 +10,14 @@ REPORT_TIMESTAMP="$3"
 TEST_NAME="$4"
 ARTIFACTS_DIR="${5:-artifacts}"
 MAX_ATTEMPTS="${6:-20}"
+REPORT_STATUS="${7:-running}"
 
 echo "Report directory: $REPORT_DIR"
 echo "Report file: $REPORT_FILE"
 echo "Report timestamp: $REPORT_TIMESTAMP"
 echo "Artifacts directory: $ARTIFACTS_DIR"
 echo "Max attempts: $MAX_ATTEMPTS"
+echo "Report status: $REPORT_STATUS"
 
 git config user.name "github-actions[bot]" > /dev/null 2>&1
 git config user.email "github-actions[bot]@users.noreply.github.com" > /dev/null 2>&1
@@ -90,7 +92,7 @@ generate_report() {
   $PYTHON_CMD scripts/collect_warnings.py "${ARTIFACTS_DIR}" "${REPORT_DIR}/collected-warnings.md"
   
   # Generate summary report
-  $PYTHON_CMD scripts/generate_report.py "${ARTIFACTS_DIR}" "${REPORT_DIR}" "${REPORT_FILE}"
+  $PYTHON_CMD scripts/generate_report.py "${ARTIFACTS_DIR}" "${REPORT_DIR}" "${REPORT_FILE}" "${REPORT_STATUS}"
   echo "Generated report:"
   cat "${REPORT_FILE}"
   

@@ -533,3 +533,4 @@ jobs:
           report-file: ${{ needs.create-report-directory.outputs.report_file }}
           report-timestamp: ${{ needs.create-report-directory.outputs.report_timestamp }}
           test-name: ${{ inputs.test_name }}
+          report-status: finished

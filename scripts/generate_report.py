@@ -202,7 +202,12 @@ def load_configured_patches(patches_json_path: Path) -> list[dict[str, str]]:
         return []
 
 
-def generate_report(artifacts_dir: Path, report_dir: Path, report_file: Path) -> None:
+def generate_report(
+    artifacts_dir: Path,
+    report_dir: Path,
+    report_file: Path,
+    report_status: str = "running",
+) -> None:
     """Generate the markdown report."""
 
     # Calculate statistics
@@ -257,6 +262,7 @@ def generate_report(artifacts_dir: Path, report_dir: Path, report_file: Path) ->
     timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
     content = template.render(
         timestamp=timestamp,
+        report_status=report_status,
         stats=stats,
         configured_patches=configured_patches,
         patched_packages=patched_packages,
@@ -272,9 +278,9 @@ def generate_report(artifacts_dir: Path, report_dir: Path, report_file: Path) ->
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 4:
+    if len(sys.argv) < 4 or len(sys.argv) > 5:
         print(
-            "Usage: generate_report.py <artifacts_dir> <report_dir> <report_file>",
+            "Usage: generate_report.py <artifacts_dir> <report_dir> <report_file> [report_status]",
             file=sys.stderr,
         )
         sys.exit(1)
@@ -282,9 +288,10 @@ if __name__ == "__main__":
     artifacts_dir = Path(sys.argv[1])
     report_dir = Path(sys.argv[2])
     report_file = Path(sys.argv[3])
+    report_status = sys.argv[4] if len(sys.argv) == 5 else "running"
 
     try:
-        generate_report(artifacts_dir, report_dir, report_file)
+        generate_report(artifacts_dir, report_dir, report_file, report_status)
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
         import traceback
