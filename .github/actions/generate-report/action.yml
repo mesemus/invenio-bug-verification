@@ -38,6 +38,23 @@ runs:
         cd _repo/repo
         bash scripts/generate_and_push_report.sh "${{ inputs.report-dir }}" "${{ inputs.report-file }}" "${{ inputs.report-timestamp }}" "${{ inputs.test-name }}" "../artifacts"
 
+    - name: Add report summary
+      shell: bash
+      run: |
+        REPORT_URL="https://github.com/${{ github.repository }}/blob/${{ github.ref_name }}/${{ inputs.report-file }}"
+        echo "## 📊 Report Generated" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "The verification report is available at:" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "🔗 **[View Report]($REPORT_URL)**" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Report Details:**" >> $GITHUB_STEP_SUMMARY
+        echo "- Directory: \`${{ inputs.report-dir }}\`" >> $GITHUB_STEP_SUMMARY
+        echo "- Timestamp: \`${{ inputs.report-timestamp }}\`" >> $GITHUB_STEP_SUMMARY
+        if [ -n "${{ inputs.test-name }}" ]; then
+          echo "- Test Name: \`${{ inputs.test-name }}\`" >> $GITHUB_STEP_SUMMARY
+        fi
+
     - name: Upload report directory as artifact
       uses: actions/upload-artifact@v4
       with:

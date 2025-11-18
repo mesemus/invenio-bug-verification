@@ -20,6 +20,20 @@ echo "Max attempts: $MAX_ATTEMPTS"
 git config user.name "github-actions[bot]"
 git config user.email "github-actions[bot]@users.noreply.github.com"
 
+# Setup virtual environment for report generation
+setup_venv() {
+  if [ ! -d ".report-venv" ]; then
+    echo "Creating virtual environment for report generation..."
+    uv venv .report-venv
+    echo "Installing jinja2..."
+    uv pip install --python .report-venv/bin/python jinja2
+  fi
+}
+
+# Setup venv once at the beginning
+setup_venv
+PYTHON_CMD=".report-venv/bin/python"
+
 # Function to copy file only if MD5 differs
 copy_if_changed() {
   local src="$1"
@@ -73,10 +87,10 @@ generate_report() {
   done
   
   # Collect warnings
-  python3 scripts/collect_warnings.py "${ARTIFACTS_DIR}" "${REPORT_DIR}/collected-warnings.md"
+  $PYTHON_CMD scripts/collect_warnings.py "${ARTIFACTS_DIR}" "${REPORT_DIR}/collected-warnings.md"
   
   # Generate summary report
-  python3 scripts/generate_report.py "${ARTIFACTS_DIR}" "${REPORT_DIR}" "${REPORT_FILE}"
+  $PYTHON_CMD scripts/generate_report.py "${ARTIFACTS_DIR}" "${REPORT_DIR}" "${REPORT_FILE}"
   echo "Generated report:"
   cat "${REPORT_FILE}"
   
@@ -111,7 +125,7 @@ generate_report() {
   STATUS="${TOTAL_PASSED} ✅ passed, ${TOTAL_FAILED} ❌ failed, ${TOTAL_WARNINGS} warnings"
   
   # Update reports index
-  python3 scripts/add_summary_line.py reports/reports.md patches.json "$TEST_NAME" "$REPORT_TIMESTAMP" "$STATUS"
+  $PYTHON_CMD scripts/add_summary_line.py reports/reports.md patches.json "$TEST_NAME" "$REPORT_TIMESTAMP" "$STATUS"
   echo "Updated reports index:"
   cat reports/reports.md
 }
