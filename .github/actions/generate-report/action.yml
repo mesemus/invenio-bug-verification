@@ -18,6 +18,10 @@ inputs:
     description: 'Status of the report (running or finished)'
     required: false
     default: 'running'
+  add-report-summary:
+    description: 'Whether to add a summary of the report to the step summary'
+    required: false
+    default: 'false'
 runs:
   using: 'composite'
   steps:
@@ -47,6 +51,7 @@ runs:
 
     - name: Add report summary
       shell: bash
+      if: ${{ inputs.add-report-summary == 'true' }}
       run: |
         REPORT_URL="https://github.com/${{ github.repository }}/blob/${{ github.ref_name }}/${{ inputs.report-file }}"
         echo "## 📊 Report Generated" >> $GITHUB_STEP_SUMMARY

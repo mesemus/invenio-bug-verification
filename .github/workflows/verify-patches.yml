@@ -101,6 +101,7 @@ jobs:
           report-file: ${{ steps.create-dir.outputs.report_file }}
           report-timestamp: ${{ steps.create-dir.outputs.report_timestamp }}
           test-name: ${{ inputs.test_name }}
+          add-report-summary: true
 
   extract-tested-packages:
     name: Extract Invenio Packages
