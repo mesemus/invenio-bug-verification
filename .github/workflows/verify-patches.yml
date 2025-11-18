@@ -52,6 +52,11 @@ jobs:
       - name: Checkout verification repository
         uses: actions/checkout@v4
 
+      - name: Setup Python and UV
+        uses: ./.github/actions/install-python
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
       - name: Create report directory
         id: create-dir
         run: |
