@@ -1,13 +1,13 @@
 # Invenio Bugfix Verification Results
 
-_Last updated: 2025-11-18 18:33:01 UTC_
+_Last updated: 2025-11-18 18:33:05 UTC_
 
 ## 📊 Overall Status
 
 | Metric | Count |
 |--------|-------|
-| **Total Packages** | 16 |
-| **Patched Packages** | 16 |
+| **Total Packages** | 17 |
+| **Patched Packages** | 17 |
 | **Unpatched Packages** | 0 |
 
 ### Patch Results
@@ -16,7 +16,7 @@ _Last updated: 2025-11-18 18:33:01 UTC_
 | ✅ Fixed | 0 |
 | ❌ Regressions | 0 |
 | ⚠️  Still Failing | 1 |
-| ℹ️  No Change | 15 |
+| ℹ️  No Change | 16 |
 
 ## 🔧 Configured Patches
 
@@ -52,6 +52,7 @@ _Last updated: 2025-11-18 18:33:01 UTC_
 | `invenio-logging` | pytest-invenio | ⏭️  Skip | ✅ Pass<br>[output](packages/invenio-logging/test-output-patched.txt)<br>[output-no-warnings](packages/invenio-logging/test-output-no-warnings-patched.txt)<br>[xml](packages/invenio-logging/test-report-patched.xml)<br>[warnings](packages/invenio-logging/warnings-patched.md) | ✅ Patch applied successfully, tests passed |
 | `invenio-formatter` | pytest-invenio | ⏭️  Skip | ✅ Pass<br>[output](packages/invenio-formatter/test-output-patched.txt)<br>[output-no-warnings](packages/invenio-formatter/test-output-no-warnings-patched.txt)<br>[xml](packages/invenio-formatter/test-report-patched.xml)<br>[warnings](packages/invenio-formatter/warnings-patched.md) | ✅ Patch applied successfully, tests passed |
 | `invenio-administration` | pytest-invenio | ⏭️  Skip | ✅ Pass<br>[output](packages/invenio-administration/test-output-patched.txt)<br>[output-no-warnings](packages/invenio-administration/test-output-no-warnings-patched.txt)<br>[xml](packages/invenio-administration/test-report-patched.xml)<br>[warnings](packages/invenio-administration/warnings-patched.md) | ✅ Patch applied successfully, tests passed |
+| `invenio-i18n` | pytest-invenio | ⏭️  Skip | ✅ Pass<br>[output](packages/invenio-i18n/test-output-patched.txt)<br>[output-no-warnings](packages/invenio-i18n/test-output-no-warnings-patched.txt)<br>[xml](packages/invenio-i18n/test-report-patched.xml) | ✅ Patch applied successfully, tests passed |
 | `invenio-oauth2server` | pytest-invenio | ⏭️  Skip | ✅ Pass<br>[output](packages/invenio-oauth2server/test-output-patched.txt)<br>[output-no-warnings](packages/invenio-oauth2server/test-output-no-warnings-patched.txt)<br>[xml](packages/invenio-oauth2server/test-report-patched.xml)<br>[warnings](packages/invenio-oauth2server/warnings-patched.md) | ✅ Patch applied successfully, tests passed |
 | `invenio-jsonschemas` | pytest-invenio | ⏭️  Skip | ✅ Pass<br>[output](packages/invenio-jsonschemas/test-output-patched.txt)<br>[output-no-warnings](packages/invenio-jsonschemas/test-output-no-warnings-patched.txt)<br>[xml](packages/invenio-jsonschemas/test-report-patched.xml)<br>[warnings](packages/invenio-jsonschemas/warnings-patched.md) | ✅ Patch applied successfully, tests passed |
 
