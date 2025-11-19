@@ -2,7 +2,7 @@
 
 ### Patched
 
-#### Warning 1 - 153 occurrences
+#### Warning 1 - 164 occurrences
 
 DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
 
@@ -11,6 +11,7 @@ DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for r
 | `invenio-requests` | 15 |
 | `invenio-accounts` | 13 |
 | `invenio-stats` | 11 |
+| `invenio-users-resources` | 11 |
 | `invenio-oauth2server` | 10 |
 | `invenio-oauthclient` | 8 |
 | `invenio-drafts-resources` | 7 |
@@ -39,23 +40,6 @@ DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for r
 
 #### Warning 2 - 43 occurrences
 
-SAWarning: nested transaction already deassociated from connection
-
-| Package | Count |
-|---------|-------|
-| `invenio-records` | 21 |
-| `invenio-oaiserver` | 5 |
-| `invenio-pages` | 5 |
-| `invenio-records-rest` | 4 |
-| `invenio-collections` | 2 |
-| `invenio-indexer` | 2 |
-| `invenio-previewer` | 1 |
-| `invenio-records-ui` | 1 |
-| `invenio-requests` | 1 |
-| `invenio-stats` | 1 |
-
-#### Warning 3 - 41 occurrences
-
 DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor of the https://github.com/python-jsonschema/referencing library, which provides more compliant referencing behavior as well as more flexible APIs for customization. A future release will remove RefResolver. Please file a feature request (on referencing) if you are missing an API for the kind of customization you need.
 
 | Package | Count |
@@ -79,9 +63,27 @@ DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor
 | `invenio-records-ui` | 2 |
 | `invenio-requests` | 2 |
 | `invenio-stats` | 2 |
+| `invenio-users-resources` | 2 |
 | `invenio-jsonschemas` | 1 |
 
-#### Warning 4 - 33 occurrences
+#### Warning 3 - 43 occurrences
+
+SAWarning: nested transaction already deassociated from connection
+
+| Package | Count |
+|---------|-------|
+| `invenio-records` | 21 |
+| `invenio-oaiserver` | 5 |
+| `invenio-pages` | 5 |
+| `invenio-records-rest` | 4 |
+| `invenio-collections` | 2 |
+| `invenio-indexer` | 2 |
+| `invenio-previewer` | 1 |
+| `invenio-records-ui` | 1 |
+| `invenio-requests` | 1 |
+| `invenio-stats` | 1 |
+
+#### Warning 4 - 36 occurrences
 
 RemovedInMarshmallow4Warning: The `context` parameter is deprecated and will be removed in marshmallow 4.0. Use `contextvars.ContextVar` to pass context instead.
 
@@ -94,11 +96,12 @@ RemovedInMarshmallow4Warning: The `context` parameter is deprecated and will be 
 | `invenio-drafts-resources` | 3 |
 | `invenio-records-resources` | 3 |
 | `invenio-requests` | 3 |
+| `invenio-users-resources` | 3 |
 | `invenio-banners` | 2 |
 | `invenio-checks` | 2 |
 | `invenio-pages` | 2 |
 
-#### Warning 5 - 25 occurrences
+#### Warning 5 - 26 occurrences
 
 DeprecationWarning: 'crypt' is deprecated and slated for removal in Python 3.13
 
@@ -128,9 +131,10 @@ DeprecationWarning: 'crypt' is deprecated and slated for removal in Python 3.13
 | `invenio-requests` | 1 |
 | `invenio-stats` | 1 |
 | `invenio-userprofiles` | 1 |
+| `invenio-users-resources` | 1 |
 | `invenio-webhooks` | 1 |
 
-#### Warning 6 - 24 occurrences
+#### Warning 6 - 26 occurrences
 
 DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('fs')`.
 
@@ -148,8 +152,9 @@ DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('fs')`.
 | `invenio-previewer` | 2 |
 | `invenio-records-resources` | 2 |
 | `invenio-requests` | 2 |
+| `invenio-users-resources` | 2 |
 
-#### Warning 7 - 19 occurrences
+#### Warning 7 - 20 occurrences
 
 DeprecationWarning: jsonschema.exceptions.RefResolutionError is deprecated as of version 4.18.0. If you wish to catch potential reference resolution errors, directly catch referencing.exceptions.Unresolvable.
 
@@ -174,6 +179,7 @@ DeprecationWarning: jsonschema.exceptions.RefResolutionError is deprecated as of
 | `invenio-records-ui` | 1 |
 | `invenio-requests` | 1 |
 | `invenio-stats` | 1 |
+| `invenio-users-resources` | 1 |
 
 #### Warning 8 - 18 occurrences
 
@@ -185,7 +191,7 @@ PendingDeprecationWarning: Schema().dump().data and Schema().dump().errors as we
 | `invenio-oaiserver` | 4 |
 | `invenio-rest` | 3 |
 
-#### Warning 9 - 16 occurrences
+#### Warning 9 - 17 occurrences
 
 FutureWarning: CSRF validation will be enabled by default in the version 1.3.x
 
@@ -206,8 +212,9 @@ FutureWarning: CSRF validation will be enabled by default in the version 1.3.x
 | `invenio-records-rest` | 1 |
 | `invenio-requests` | 1 |
 | `invenio-stats` | 1 |
+| `invenio-users-resources` | 1 |
 
-#### Warning 10 - 15 occurrences
+#### Warning 10 - 16 occurrences
 
 DeprecationWarning: Using the initialization functions in flask_caching.backend is deprecated.  Use the a full path to backend classes directly.
 
@@ -228,8 +235,9 @@ DeprecationWarning: Using the initialization functions in flask_caching.backend 
 | `invenio-requests` | 1 |
 | `invenio-sitemap` | 1 |
 | `invenio-stats` | 1 |
+| `invenio-users-resources` | 1 |
 
-#### Warning 11 - 15 occurrences
+#### Warning 11 - 16 occurrences
 
 UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
 
@@ -249,8 +257,9 @@ UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.
 | `invenio-previewer` | 1 |
 | `invenio-records-resources` | 1 |
 | `invenio-requests` | 1 |
+| `invenio-users-resources` | 1 |
 
-#### Warning 12 - 14 occurrences
+#### Warning 12 - 15 occurrences
 
 DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('sphinxcontrib')`.
 
@@ -270,8 +279,9 @@ DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('sphinxc
 | `invenio-previewer` | 1 |
 | `invenio-records-resources` | 1 |
 | `invenio-requests` | 1 |
+| `invenio-users-resources` | 1 |
 
-#### Warning 13 - 12 occurrences
+#### Warning 13 - 13 occurrences
 
 DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('fs.opener')`.
 
@@ -289,8 +299,9 @@ DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('fs.open
 | `invenio-previewer` | 1 |
 | `invenio-records-resources` | 1 |
 | `invenio-requests` | 1 |
+| `invenio-users-resources` | 1 |
 
-#### Warning 14 - 11 occurrences
+#### Warning 14 - 12 occurrences
 
 DeprecationWarning: The '__version_info__' attribute is deprecated and will be removed in in a future version. Use feature detection or 'packaging.Version(importlib.metadata.version("marshmallow")).release' instead.
 
@@ -307,8 +318,9 @@ DeprecationWarning: The '__version_info__' attribute is deprecated and will be r
 | `invenio-pages` | 1 |
 | `invenio-records-resources` | 1 |
 | `invenio-requests` | 1 |
+| `invenio-users-resources` | 1 |
 
-#### Warning 15 - 11 occurrences
+#### Warning 15 - 12 occurrences
 
 DeprecationWarning: datetime.datetime.utcfromtimestamp() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.fromtimestamp(timestamp, datetime.UTC).
 
@@ -324,9 +336,10 @@ DeprecationWarning: datetime.datetime.utcfromtimestamp() is deprecated and sched
 | `invenio-requests` | 1 |
 | `invenio-stats` | 1 |
 | `invenio-userprofiles` | 1 |
+| `invenio-users-resources` | 1 |
 | `invenio-webhooks` | 1 |
 
-#### Warning 16 - 11 occurrences
+#### Warning 16 - 12 occurrences
 
 RemovedInMarshmallow4Warning: The 'default' argument to fields is deprecated. Use 'dump_default' instead.
 
@@ -341,8 +354,9 @@ RemovedInMarshmallow4Warning: The 'default' argument to fields is deprecated. Us
 | `invenio-pages` | 1 |
 | `invenio-records-resources` | 1 |
 | `invenio-requests` | 1 |
+| `invenio-users-resources` | 1 |
 
-#### Warning 17 - 10 occurrences
+#### Warning 17 - 11 occurrences
 
 DeprecationWarning: Link is deprecated and will be removed in v14.0. Use `ExternalLink` for third-party links and `EndpointLink` for InvenioRDM links.
 
@@ -358,6 +372,7 @@ DeprecationWarning: Link is deprecated and will be removed in v14.0. Use `Extern
 | `invenio-pages` | 1 |
 | `invenio-records-resources` | 1 |
 | `invenio-requests` | 1 |
+| `invenio-users-resources` | 1 |
 
 #### Warning 18 - 10 occurrences
 
@@ -371,7 +386,7 @@ DeprecationWarning: distutils Version classes are deprecated. Use packaging.vers
 | `invenio-previewer` | 2 |
 | `invenio-records-rest` | 2 |
 
-#### Warning 19 - 7 occurrences
+#### Warning 19 - 8 occurrences
 
 LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
 
@@ -382,8 +397,9 @@ LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x seri
 | `invenio-jobs` | 1 |
 | `invenio-records-resources` | 1 |
 | `invenio-requests` | 1 |
+| `invenio-users-resources` | 1 |
 
-#### Warning 20 - 6 occurrences
+#### Warning 20 - 7 occurrences
 
 DeprecationWarning: get_user method is deprecated, user get_user_by_email/get_user_by_id
 
@@ -394,9 +410,22 @@ DeprecationWarning: get_user method is deprecated, user get_user_by_email/get_us
 | `invenio-oauth2server` | 1 |
 | `invenio-pages` | 1 |
 | `invenio-stats` | 1 |
+| `invenio-users-resources` | 1 |
 | `invenio-webhooks` | 1 |
 
 #### Warning 21 - 6 occurrences
+
+DeprecationWarning: The 'warn' method is deprecated, use 'warning' instead
+
+| Package | Count |
+|---------|-------|
+| `invenio-users-resources` | 2 |
+| `invenio-drafts-resources` | 1 |
+| `invenio-logging` | 1 |
+| `invenio-oauth2server` | 1 |
+| `invenio-records-resources` | 1 |
+
+#### Warning 22 - 6 occurrences
 
 RemovedInMarshmallow4Warning: The 'missing' argument to fields is deprecated. Use 'load_default' instead.
 
@@ -406,7 +435,7 @@ RemovedInMarshmallow4Warning: The 'missing' argument to fields is deprecated. Us
 | `invenio-drafts-resources` | 1 |
 | `invenio-records-resources` | 1 |
 
-#### Warning 22 - 5 occurrences
+#### Warning 23 - 5 occurrences
 
 DeprecationWarning: The '__version__' attribute is deprecated and will be removed in in a future version. Use feature detection or 'importlib.metadata.version("marshmallow")' instead.
 
@@ -418,7 +447,7 @@ DeprecationWarning: The '__version__' attribute is deprecated and will be remove
 | `invenio-previewer` | 1 |
 | `invenio-records-rest` | 1 |
 
-#### Warning 23 - 4 occurrences
+#### Warning 24 - 4 occurrences
 
 DeprecationWarning: Implicit imports (e.g., 'import idutils; idutils.function;') might be removed in the next major version. Please use explicit imports (e.g., 'from idutils import function;') instead.
 
@@ -429,7 +458,7 @@ DeprecationWarning: Implicit imports (e.g., 'import idutils; idutils.function;')
 | `invenio-pidstore` | 1 |
 | `invenio-records-rest` | 1 |
 
-#### Warning 24 - 4 occurrences
+#### Warning 25 - 4 occurrences
 
 DeprecationWarning: No path_separator found in configuration; falling back to legacy splitting on spaces/commas for version_locations.  Consider adding path_separator=os to Alembic config.
 
@@ -439,17 +468,6 @@ DeprecationWarning: No path_separator found in configuration; falling back to le
 | `invenio-audit-logs` | 1 |
 | `invenio-db` | 1 |
 | `invenio-requests` | 1 |
-
-#### Warning 25 - 4 occurrences
-
-DeprecationWarning: The 'warn' method is deprecated, use 'warning' instead
-
-| Package | Count |
-|---------|-------|
-| `invenio-drafts-resources` | 1 |
-| `invenio-logging` | 1 |
-| `invenio-oauth2server` | 1 |
-| `invenio-records-resources` | 1 |
 
 #### Warning 26 - 4 occurrences
 
@@ -977,5 +995,152 @@ UserWarning: Using the in-memory storage for tracking rate limits as no storage 
 | Package | Count |
 |---------|-------|
 | `invenio-app` | 1 |
+
+
+### Original
+
+#### Warning 1 - 11 occurrences
+
+DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+
+| Package | Count |
+|---------|-------|
+| `invenio-users-resources` | 11 |
+
+#### Warning 2 - 3 occurrences
+
+RemovedInMarshmallow4Warning: The `context` parameter is deprecated and will be removed in marshmallow 4.0. Use `contextvars.ContextVar` to pass context instead.
+
+| Package | Count |
+|---------|-------|
+| `invenio-users-resources` | 3 |
+
+#### Warning 3 - 2 occurrences
+
+DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('fs')`.
+
+| Package | Count |
+|---------|-------|
+| `invenio-users-resources` | 2 |
+
+#### Warning 4 - 2 occurrences
+
+DeprecationWarning: The 'warn' method is deprecated, use 'warning' instead
+
+| Package | Count |
+|---------|-------|
+| `invenio-users-resources` | 2 |
+
+#### Warning 5 - 2 occurrences
+
+DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor of the https://github.com/python-jsonschema/referencing library, which provides more compliant referencing behavior as well as more flexible APIs for customization. A future release will remove RefResolver. Please file a feature request (on referencing) if you are missing an API for the kind of customization you need.
+
+| Package | Count |
+|---------|-------|
+| `invenio-users-resources` | 2 |
+
+#### Warning 6 - 1 occurrence
+
+DeprecationWarning: 'crypt' is deprecated and slated for removal in Python 3.13
+
+| Package | Count |
+|---------|-------|
+| `invenio-users-resources` | 1 |
+
+#### Warning 7 - 1 occurrence
+
+DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('fs.opener')`.
+
+| Package | Count |
+|---------|-------|
+| `invenio-users-resources` | 1 |
+
+#### Warning 8 - 1 occurrence
+
+DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('sphinxcontrib')`.
+
+| Package | Count |
+|---------|-------|
+| `invenio-users-resources` | 1 |
+
+#### Warning 9 - 1 occurrence
+
+DeprecationWarning: Link is deprecated and will be removed in v14.0. Use `ExternalLink` for third-party links and `EndpointLink` for InvenioRDM links.
+
+| Package | Count |
+|---------|-------|
+| `invenio-users-resources` | 1 |
+
+#### Warning 10 - 1 occurrence
+
+DeprecationWarning: The '__version_info__' attribute is deprecated and will be removed in in a future version. Use feature detection or 'packaging.Version(importlib.metadata.version("marshmallow")).release' instead.
+
+| Package | Count |
+|---------|-------|
+| `invenio-users-resources` | 1 |
+
+#### Warning 11 - 1 occurrence
+
+DeprecationWarning: Using the initialization functions in flask_caching.backend is deprecated.  Use the a full path to backend classes directly.
+
+| Package | Count |
+|---------|-------|
+| `invenio-users-resources` | 1 |
+
+#### Warning 12 - 1 occurrence
+
+DeprecationWarning: datetime.datetime.utcfromtimestamp() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.fromtimestamp(timestamp, datetime.UTC).
+
+| Package | Count |
+|---------|-------|
+| `invenio-users-resources` | 1 |
+
+#### Warning 13 - 1 occurrence
+
+DeprecationWarning: get_user method is deprecated, user get_user_by_email/get_user_by_id
+
+| Package | Count |
+|---------|-------|
+| `invenio-users-resources` | 1 |
+
+#### Warning 14 - 1 occurrence
+
+DeprecationWarning: jsonschema.exceptions.RefResolutionError is deprecated as of version 4.18.0. If you wish to catch potential reference resolution errors, directly catch referencing.exceptions.Unresolvable.
+
+| Package | Count |
+|---------|-------|
+| `invenio-users-resources` | 1 |
+
+#### Warning 15 - 1 occurrence
+
+FutureWarning: CSRF validation will be enabled by default in the version 1.3.x
+
+| Package | Count |
+|---------|-------|
+| `invenio-users-resources` | 1 |
+
+#### Warning 16 - 1 occurrence
+
+LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+
+| Package | Count |
+|---------|-------|
+| `invenio-users-resources` | 1 |
+
+#### Warning 17 - 1 occurrence
+
+RemovedInMarshmallow4Warning: The 'default' argument to fields is deprecated. Use 'dump_default' instead.
+
+| Package | Count |
+|---------|-------|
+| `invenio-users-resources` | 1 |
+
+#### Warning 18 - 1 occurrence
+
+UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+
+| Package | Count |
+|---------|-------|
+| `invenio-users-resources` | 1 |
 
 
