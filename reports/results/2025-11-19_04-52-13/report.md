@@ -2,14 +2,14 @@
 
 > **⏳ Status: Running** - This report is being updated as tests complete.
 
-_Last updated: 2025-11-19 04:55:58 UTC_
+_Last updated: 2025-11-19 04:56:03 UTC_
 
 ## 📊 Overall Status
 
 | Metric | Count |
 |--------|-------|
-| **Total Packages** | 26 |
-| **Patched Packages** | 26 |
+| **Total Packages** | 27 |
+| **Patched Packages** | 27 |
 | **Unpatched Packages** | 0 |
 
 ### Patch Results
@@ -18,7 +18,7 @@ _Last updated: 2025-11-19 04:55:58 UTC_
 | ✅ Fixed | 0 |
 | ❌ Regressions | 0 |
 | ⚠️  Still Failing | 1 |
-| ℹ️  No Change | 25 |
+| ℹ️  No Change | 26 |
 
 ## 🔧 Configured Patches
 
@@ -55,6 +55,7 @@ _Last updated: 2025-11-19 04:55:58 UTC_
 | `invenio-pidstore` | pytest-invenio | ⏭️  Skip | ✅ Pass<br>[output](packages/invenio-pidstore/test-output-patched.txt)<br>[output-no-warnings](packages/invenio-pidstore/test-output-no-warnings-patched.txt)<br>[xml](packages/invenio-pidstore/test-report-patched.xml)<br>[warnings](packages/invenio-pidstore/warnings-patched.md) | ✅ Patch applied successfully, tests passed |
 | `invenio-drafts-resources` | pytest-invenio | ⏭️  Skip | ✅ Pass<br>[output](packages/invenio-drafts-resources/test-output-patched.txt)<br>[output-no-warnings](packages/invenio-drafts-resources/test-output-no-warnings-patched.txt)<br>[xml](packages/invenio-drafts-resources/test-report-patched.xml)<br>[warnings](packages/invenio-drafts-resources/warnings-patched.md) | ✅ Patch applied successfully, tests passed |
 | `invenio-access` | pytest-invenio | ⏭️  Skip | ✅ Pass<br>[output](packages/invenio-access/test-output-patched.txt)<br>[output-no-warnings](packages/invenio-access/test-output-no-warnings-patched.txt)<br>[xml](packages/invenio-access/test-report-patched.xml)<br>[warnings](packages/invenio-access/warnings-patched.md) | ✅ Patch applied successfully, tests passed |
+| `invenio-requests` | pytest-invenio | ⏭️  Skip | ✅ Pass<br>[output](packages/invenio-requests/test-output-patched.txt)<br>[output-no-warnings](packages/invenio-requests/test-output-no-warnings-patched.txt)<br>[xml](packages/invenio-requests/test-report-patched.xml)<br>[warnings](packages/invenio-requests/warnings-patched.md) | ✅ Patch applied successfully, tests passed |
 | `invenio-pages` | pytest-invenio | ⏭️  Skip | ✅ Pass<br>[output](packages/invenio-pages/test-output-patched.txt)<br>[output-no-warnings](packages/invenio-pages/test-output-no-warnings-patched.txt)<br>[xml](packages/invenio-pages/test-report-patched.xml)<br>[warnings](packages/invenio-pages/warnings-patched.md) | ✅ Patch applied successfully, tests passed |
 | `invenio-collections` | pytest-invenio | ⏭️  Skip | ✅ Pass<br>[output](packages/invenio-collections/test-output-patched.txt)<br>[output-no-warnings](packages/invenio-collections/test-output-no-warnings-patched.txt)<br>[xml](packages/invenio-collections/test-report-patched.xml)<br>[warnings](packages/invenio-collections/warnings-patched.md) | ✅ Patch applied successfully, tests passed |
 | `invenio-records-ui` | pytest-invenio | ⏭️  Skip | ✅ Pass<br>[output](packages/invenio-records-ui/test-output-patched.txt)<br>[output-no-warnings](packages/invenio-records-ui/test-output-no-warnings-patched.txt)<br>[xml](packages/invenio-records-ui/test-report-patched.xml)<br>[warnings](packages/invenio-records-ui/warnings-patched.md) | ✅ Patch applied successfully, tests passed |
@@ -71,12 +72,13 @@ _Last updated: 2025-11-19 04:55:58 UTC_
 
 ### Patched
 
-#### Warning 1 - 76 occurrences
+#### Warning 1 - 91 occurrences
 
 DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
 
 | Package | Count |
 |---------|-------|
+| `invenio-requests` | 15 |
 | `invenio-accounts` | 13 |
 | `invenio-oauthclient` | 8 |
 | `invenio-drafts-resources` | 7 |
@@ -92,7 +94,7 @@ DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for r
 | `invenio-pidstore` | 2 |
 | `invenio-cache` | 1 |
 
-#### Warning 2 - 27 occurrences
+#### Warning 2 - 30 occurrences
 
 RemovedInMarshmallow4Warning: The `context` parameter is deprecated and will be removed in marshmallow 4.0. Use `contextvars.ContextVar` to pass context instead.
 
@@ -103,11 +105,12 @@ RemovedInMarshmallow4Warning: The `context` parameter is deprecated and will be 
 | `invenio-audit-logs` | 3 |
 | `invenio-collections` | 3 |
 | `invenio-drafts-resources` | 3 |
+| `invenio-requests` | 3 |
 | `invenio-banners` | 2 |
 | `invenio-checks` | 2 |
 | `invenio-pages` | 2 |
 
-#### Warning 3 - 25 occurrences
+#### Warning 3 - 27 occurrences
 
 DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor of the https://github.com/python-jsonschema/referencing library, which provides more compliant referencing behavior as well as more flexible APIs for customization. A future release will remove RefResolver. Please file a feature request (on referencing) if you are missing an API for the kind of customization you need.
 
@@ -124,9 +127,10 @@ DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor
 | `invenio-notifications` | 2 |
 | `invenio-pages` | 2 |
 | `invenio-records-ui` | 2 |
+| `invenio-requests` | 2 |
 | `invenio-jsonschemas` | 1 |
 
-#### Warning 4 - 18 occurrences
+#### Warning 4 - 20 occurrences
 
 DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('fs')`.
 
@@ -141,8 +145,9 @@ DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('fs')`.
 | `invenio-jobs` | 2 |
 | `invenio-notifications` | 2 |
 | `invenio-pages` | 2 |
+| `invenio-requests` | 2 |
 
-#### Warning 5 - 14 occurrences
+#### Warning 5 - 15 occurrences
 
 DeprecationWarning: 'crypt' is deprecated and slated for removal in Python 3.13
 
@@ -162,8 +167,9 @@ DeprecationWarning: 'crypt' is deprecated and slated for removal in Python 3.13
 | `invenio-pages` | 1 |
 | `invenio-pidstore` | 1 |
 | `invenio-records-ui` | 1 |
+| `invenio-requests` | 1 |
 
-#### Warning 6 - 12 occurrences
+#### Warning 6 - 13 occurrences
 
 SAWarning: nested transaction already deassociated from connection
 
@@ -173,8 +179,9 @@ SAWarning: nested transaction already deassociated from connection
 | `invenio-records-rest` | 4 |
 | `invenio-collections` | 2 |
 | `invenio-records-ui` | 1 |
+| `invenio-requests` | 1 |
 
-#### Warning 7 - 12 occurrences
+#### Warning 7 - 13 occurrences
 
 UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
 
@@ -191,8 +198,9 @@ UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.
 | `invenio-notifications` | 1 |
 | `invenio-oauthclient` | 1 |
 | `invenio-pages` | 1 |
+| `invenio-requests` | 1 |
 
-#### Warning 8 - 11 occurrences
+#### Warning 8 - 12 occurrences
 
 DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('sphinxcontrib')`.
 
@@ -209,8 +217,9 @@ DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('sphinxc
 | `invenio-notifications` | 1 |
 | `invenio-oauthclient` | 1 |
 | `invenio-pages` | 1 |
+| `invenio-requests` | 1 |
 
-#### Warning 9 - 11 occurrences
+#### Warning 9 - 12 occurrences
 
 DeprecationWarning: jsonschema.exceptions.RefResolutionError is deprecated as of version 4.18.0. If you wish to catch potential reference resolution errors, directly catch referencing.exceptions.Unresolvable.
 
@@ -227,6 +236,7 @@ DeprecationWarning: jsonschema.exceptions.RefResolutionError is deprecated as of
 | `invenio-pages` | 1 |
 | `invenio-records-rest` | 1 |
 | `invenio-records-ui` | 1 |
+| `invenio-requests` | 1 |
 
 #### Warning 10 - 11 occurrences
 
@@ -236,7 +246,7 @@ PendingDeprecationWarning: Schema().dump().data and Schema().dump().errors as we
 |---------|-------|
 | `invenio-records-rest` | 11 |
 
-#### Warning 11 - 9 occurrences
+#### Warning 11 - 10 occurrences
 
 DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('fs.opener')`.
 
@@ -251,8 +261,9 @@ DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('fs.open
 | `invenio-jobs` | 1 |
 | `invenio-notifications` | 1 |
 | `invenio-pages` | 1 |
+| `invenio-requests` | 1 |
 
-#### Warning 12 - 9 occurrences
+#### Warning 12 - 10 occurrences
 
 DeprecationWarning: The '__version_info__' attribute is deprecated and will be removed in in a future version. Use feature detection or 'packaging.Version(importlib.metadata.version("marshmallow")).release' instead.
 
@@ -267,8 +278,9 @@ DeprecationWarning: The '__version_info__' attribute is deprecated and will be r
 | `invenio-jobs` | 1 |
 | `invenio-notifications` | 1 |
 | `invenio-pages` | 1 |
+| `invenio-requests` | 1 |
 
-#### Warning 13 - 9 occurrences
+#### Warning 13 - 10 occurrences
 
 DeprecationWarning: Using the initialization functions in flask_caching.backend is deprecated.  Use the a full path to backend classes directly.
 
@@ -283,8 +295,9 @@ DeprecationWarning: Using the initialization functions in flask_caching.backend 
 | `invenio-drafts-resources` | 1 |
 | `invenio-jobs` | 1 |
 | `invenio-pages` | 1 |
+| `invenio-requests` | 1 |
 
-#### Warning 14 - 9 occurrences
+#### Warning 14 - 10 occurrences
 
 FutureWarning: CSRF validation will be enabled by default in the version 1.3.x
 
@@ -299,8 +312,9 @@ FutureWarning: CSRF validation will be enabled by default in the version 1.3.x
 | `invenio-jobs` | 1 |
 | `invenio-pages` | 1 |
 | `invenio-records-rest` | 1 |
+| `invenio-requests` | 1 |
 
-#### Warning 15 - 9 occurrences
+#### Warning 15 - 10 occurrences
 
 RemovedInMarshmallow4Warning: The 'default' argument to fields is deprecated. Use 'dump_default' instead.
 
@@ -313,8 +327,9 @@ RemovedInMarshmallow4Warning: The 'default' argument to fields is deprecated. Us
 | `invenio-banners` | 1 |
 | `invenio-drafts-resources` | 1 |
 | `invenio-pages` | 1 |
+| `invenio-requests` | 1 |
 
-#### Warning 16 - 8 occurrences
+#### Warning 16 - 9 occurrences
 
 DeprecationWarning: Link is deprecated and will be removed in v14.0. Use `ExternalLink` for third-party links and `EndpointLink` for InvenioRDM links.
 
@@ -328,18 +343,9 @@ DeprecationWarning: Link is deprecated and will be removed in v14.0. Use `Extern
 | `invenio-jobs` | 1 |
 | `invenio-notifications` | 1 |
 | `invenio-pages` | 1 |
+| `invenio-requests` | 1 |
 
 #### Warning 17 - 6 occurrences
-
-DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
-
-| Package | Count |
-|---------|-------|
-| `invenio-accounts` | 2 |
-| `invenio-collections` | 2 |
-| `invenio-records-rest` | 2 |
-
-#### Warning 18 - 5 occurrences
 
 DeprecationWarning: datetime.datetime.utcfromtimestamp() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.fromtimestamp(timestamp, datetime.UTC).
 
@@ -350,6 +356,17 @@ DeprecationWarning: datetime.datetime.utcfromtimestamp() is deprecated and sched
 | `invenio-oauthclient` | 1 |
 | `invenio-pages` | 1 |
 | `invenio-records-ui` | 1 |
+| `invenio-requests` | 1 |
+
+#### Warning 18 - 6 occurrences
+
+DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+
+| Package | Count |
+|---------|-------|
+| `invenio-accounts` | 2 |
+| `invenio-collections` | 2 |
+| `invenio-records-rest` | 2 |
 
 #### Warning 19 - 5 occurrences
 
@@ -373,13 +390,33 @@ DeprecationWarning: Implicit imports (e.g., 'import idutils; idutils.function;')
 
 #### Warning 21 - 4 occurrences
 
+LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+
+| Package | Count |
+|---------|-------|
+| `invenio-collections` | 2 |
+| `invenio-jobs` | 1 |
+| `invenio-requests` | 1 |
+
+#### Warning 22 - 4 occurrences
+
 PytestMockWarning: Mocks returned by pytest-mock do not need to be used as context managers. The mocker fixture automatically undoes mocking at the end of a test. This warning can be ignored if it was triggered by mocking a context manager. https://pytest-mock.readthedocs.io/en/latest/usage.html#usage-as-context-manager
 
 | Package | Count |
 |---------|-------|
 | `invenio-cache` | 4 |
 
-#### Warning 22 - 3 occurrences
+#### Warning 23 - 4 occurrences
+
+SADeprecationWarning: The from_engine() method on Inspector is deprecated and will be removed in a future release.  Please use the sqlalchemy.inspect() function on an Engine or Connection in order to acquire an Inspector. (deprecated since: 1.4)
+
+| Package | Count |
+|---------|-------|
+| `invenio-requests` | 2 |
+| `invenio-access` | 1 |
+| `invenio-audit-logs` | 1 |
+
+#### Warning 24 - 3 occurrences
 
 ChangedInMarshmallow4Warning: `Field` should not be instantiated. Use `fields.Raw` or  another field subclass instead.
 
@@ -389,7 +426,17 @@ ChangedInMarshmallow4Warning: `Field` should not be instantiated. Use `fields.Ra
 | `invenio-collections` | 1 |
 | `invenio-jobs` | 1 |
 
-#### Warning 23 - 3 occurrences
+#### Warning 25 - 3 occurrences
+
+DeprecationWarning: No path_separator found in configuration; falling back to legacy splitting on spaces/commas for version_locations.  Consider adding path_separator=os to Alembic config.
+
+| Package | Count |
+|---------|-------|
+| `invenio-access` | 1 |
+| `invenio-audit-logs` | 1 |
+| `invenio-requests` | 1 |
+
+#### Warning 26 - 3 occurrences
 
 DeprecationWarning: The '__version__' attribute is deprecated and will be removed in in a future version. Use feature detection or 'importlib.metadata.version("marshmallow")' instead.
 
@@ -399,7 +446,7 @@ DeprecationWarning: The '__version__' attribute is deprecated and will be remove
 | `invenio-collections` | 1 |
 | `invenio-records-rest` | 1 |
 
-#### Warning 24 - 3 occurrences
+#### Warning 27 - 3 occurrences
 
 DeprecationWarning: get_user method is deprecated, user get_user_by_email/get_user_by_id
 
@@ -409,25 +456,26 @@ DeprecationWarning: get_user method is deprecated, user get_user_by_email/get_us
 | `invenio-banners` | 1 |
 | `invenio-pages` | 1 |
 
-#### Warning 25 - 3 occurrences
+#### Warning 28 - 3 occurrences
 
-LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
-
-| Package | Count |
-|---------|-------|
-| `invenio-collections` | 2 |
-| `invenio-jobs` | 1 |
-
-#### Warning 26 - 2 occurrences
-
-DeprecationWarning: No path_separator found in configuration; falling back to legacy splitting on spaces/commas for version_locations.  Consider adding path_separator=os to Alembic config.
+UserWarning: autoincrement and existing_autoincrement only make sense for MySQL
 
 | Package | Count |
 |---------|-------|
 | `invenio-access` | 1 |
 | `invenio-audit-logs` | 1 |
+| `invenio-requests` | 1 |
 
-#### Warning 27 - 2 occurrences
+#### Warning 29 - 2 occurrences
+
+DeprecationWarning: Remember me support has been removed.
+
+| Package | Count |
+|---------|-------|
+| `invenio-audit-logs` | 1 |
+| `invenio-requests` | 1 |
+
+#### Warning 30 - 2 occurrences
 
 PytestConfigWarning: Unknown config option: pep8ignore
 
@@ -436,7 +484,7 @@ PytestConfigWarning: Unknown config option: pep8ignore
 | `invenio-jsonschemas` | 1 |
 | `invenio-records-ui` | 1 |
 
-#### Warning 28 - 2 occurrences
+#### Warning 31 - 2 occurrences
 
 PytestDeprecationWarning: @pytest.yield_fixture is deprecated.
 
@@ -444,16 +492,7 @@ PytestDeprecationWarning: @pytest.yield_fixture is deprecated.
 |---------|-------|
 | `invenio-pidstore` | 2 |
 
-#### Warning 29 - 2 occurrences
-
-SADeprecationWarning: The from_engine() method on Inspector is deprecated and will be removed in a future release.  Please use the sqlalchemy.inspect() function on an Engine or Connection in order to acquire an Inspector. (deprecated since: 1.4)
-
-| Package | Count |
-|---------|-------|
-| `invenio-access` | 1 |
-| `invenio-audit-logs` | 1 |
-
-#### Warning 30 - 2 occurrences
+#### Warning 32 - 2 occurrences
 
 UserWarning: Set configuration variable SECRET_KEY with random string
 
@@ -462,16 +501,7 @@ UserWarning: Set configuration variable SECRET_KEY with random string
 | `invenio-app` | 1 |
 | `invenio-records-rest` | 1 |
 
-#### Warning 31 - 2 occurrences
-
-UserWarning: autoincrement and existing_autoincrement only make sense for MySQL
-
-| Package | Count |
-|---------|-------|
-| `invenio-access` | 1 |
-| `invenio-audit-logs` | 1 |
-
-#### Warning 32 - 1 occurrence
+#### Warning 33 - 1 occurrence
 
 DeprecationWarning: CryptContext.hash(): 'scheme' keyword is deprecated as of Passlib 1.7, and will be removed in Passlib 2.0
 
@@ -479,7 +509,7 @@ DeprecationWarning: CryptContext.hash(): 'scheme' keyword is deprecated as of Pa
 |---------|-------|
 | `invenio-accounts` | 1 |
 
-#### Warning 33 - 1 occurrence
+#### Warning 34 - 1 occurrence
 
 DeprecationWarning: DynamicPermission is scheduled for removal.
 
@@ -487,7 +517,7 @@ DeprecationWarning: DynamicPermission is scheduled for removal.
 |---------|-------|
 | `invenio-access` | 1 |
 
-#### Warning 34 - 1 occurrence
+#### Warning 35 - 1 occurrence
 
 DeprecationWarning: Please use hash_password instead of encrypt_password.
 
@@ -495,7 +525,7 @@ DeprecationWarning: Please use hash_password instead of encrypt_password.
 |---------|-------|
 | `invenio-records-ui` | 1 |
 
-#### Warning 35 - 1 occurrence
+#### Warning 36 - 1 occurrence
 
 DeprecationWarning: Please use the new command allow-action-for-role instead.
 
@@ -503,7 +533,7 @@ DeprecationWarning: Please use the new command allow-action-for-role instead.
 |---------|-------|
 | `invenio-access` | 1 |
 
-#### Warning 36 - 1 occurrence
+#### Warning 37 - 1 occurrence
 
 DeprecationWarning: Please use the new command allow-action-for-user instead.
 
@@ -511,7 +541,7 @@ DeprecationWarning: Please use the new command allow-action-for-user instead.
 |---------|-------|
 | `invenio-access` | 1 |
 
-#### Warning 37 - 1 occurrence
+#### Warning 38 - 1 occurrence
 
 DeprecationWarning: Please use the new command deny-action-for-role instead.
 
@@ -519,7 +549,7 @@ DeprecationWarning: Please use the new command deny-action-for-role instead.
 |---------|-------|
 | `invenio-access` | 1 |
 
-#### Warning 38 - 1 occurrence
+#### Warning 39 - 1 occurrence
 
 DeprecationWarning: Please use the new command deny-action-for-user instead.
 
@@ -527,7 +557,7 @@ DeprecationWarning: Please use the new command deny-action-for-user instead.
 |---------|-------|
 | `invenio-access` | 1 |
 
-#### Warning 39 - 1 occurrence
+#### Warning 40 - 1 occurrence
 
 DeprecationWarning: Please use the new command remove-action-from-role instead.
 
@@ -535,7 +565,7 @@ DeprecationWarning: Please use the new command remove-action-from-role instead.
 |---------|-------|
 | `invenio-access` | 1 |
 
-#### Warning 40 - 1 occurrence
+#### Warning 41 - 1 occurrence
 
 DeprecationWarning: Please use the new command remove-action-from-user instead.
 
@@ -543,21 +573,13 @@ DeprecationWarning: Please use the new command remove-action-from-user instead.
 |---------|-------|
 | `invenio-access` | 1 |
 
-#### Warning 41 - 1 occurrence
+#### Warning 42 - 1 occurrence
 
 DeprecationWarning: Please use the new command remove-action-global instead.
 
 | Package | Count |
 |---------|-------|
 | `invenio-access` | 1 |
-
-#### Warning 42 - 1 occurrence
-
-DeprecationWarning: Remember me support has been removed.
-
-| Package | Count |
-|---------|-------|
-| `invenio-audit-logs` | 1 |
 
 #### Warning 43 - 1 occurrence
 
@@ -609,13 +631,21 @@ DeprecationWarning: The patch() method is deprecated and will be removed.
 
 #### Warning 49 - 1 occurrence
 
+DeprecationWarning: `es_clear` fixture is deprecated, use `search_clear` instead.
+
+| Package | Count |
+|---------|-------|
+| `invenio-requests` | 1 |
+
+#### Warning 50 - 1 occurrence
+
 DeprecationWarning: passing settings to invenio_aes_encrypted_email.hash() is deprecated, and won't be supported in Passlib 2.0; use 'invenio_aes_encrypted_email.using(**settings).hash(secret)' instead
 
 | Package | Count |
 |---------|-------|
 | `invenio-accounts` | 1 |
 
-#### Warning 50 - 1 occurrence
+#### Warning 51 - 1 occurrence
 
 DeprecationWarning: subject_nested is deprecated. Use subject_combined instead.
 
@@ -623,7 +653,7 @@ DeprecationWarning: subject_nested is deprecated. Use subject_combined instead.
 |---------|-------|
 | `invenio-collections` | 1 |
 
-#### Warning 51 - 1 occurrence
+#### Warning 52 - 1 occurrence
 
 DeprecationWarning: the method passlib.context.CryptContext.encrypt() is deprecated as of Passlib 1.7, and will be removed in Passlib 2.0, use CryptContext.hash() instead.
 
@@ -631,7 +661,7 @@ DeprecationWarning: the method passlib.context.CryptContext.encrypt() is depreca
 |---------|-------|
 | `invenio-accounts` | 1 |
 
-#### Warning 52 - 1 occurrence
+#### Warning 53 - 1 occurrence
 
 PendingDeprecationWarning: The WSGI_PROXIES configuration is deprecated and it will be removed, use PROXYFIX_CONFIG instead
 
@@ -639,7 +669,15 @@ PendingDeprecationWarning: The WSGI_PROXIES configuration is deprecated and it w
 |---------|-------|
 | `invenio-base` | 1 |
 
-#### Warning 53 - 1 occurrence
+#### Warning 54 - 1 occurrence
+
+PytestCollectionWarning: cannot collect test class 'TestAction' because it has a __init__ constructor (from: tests/customizations/test_request_types.py)
+
+| Package | Count |
+|---------|-------|
+| `invenio-requests` | 1 |
+
+#### Warning 55 - 1 occurrence
 
 PytestCollectionWarning: cannot collect test class 'TestCustomView' because it has a __init__ constructor (from: tests/test_base.py)
 
@@ -647,7 +685,7 @@ PytestCollectionWarning: cannot collect test class 'TestCustomView' because it h
 |---------|-------|
 | `invenio-administration` | 1 |
 
-#### Warning 54 - 1 occurrence
+#### Warning 56 - 1 occurrence
 
 PytestCollectionWarning: cannot collect test class 'TestSchema' because it has a __init__ constructor (from: tests/test_marshmallow_utils.py)
 
@@ -655,7 +693,7 @@ PytestCollectionWarning: cannot collect test class 'TestSchema' because it has a
 |---------|-------|
 | `invenio-administration` | 1 |
 
-#### Warning 55 - 1 occurrence
+#### Warning 57 - 1 occurrence
 
 RemovedInMarshmallow4Warning: Passing field metadata as keyword arguments is deprecated. Use the explicit `metadata=...` argument instead. Additional metadata: {'load_from': 'from'}
 
@@ -663,7 +701,7 @@ RemovedInMarshmallow4Warning: Passing field metadata as keyword arguments is dep
 |---------|-------|
 | `invenio-records-rest` | 1 |
 
-#### Warning 56 - 1 occurrence
+#### Warning 58 - 1 occurrence
 
 RemovedInMarshmallow4Warning: `Field.fail` is deprecated. Use `raise self.make_error("required", ...)` instead.
 
@@ -671,7 +709,7 @@ RemovedInMarshmallow4Warning: `Field.fail` is deprecated. Use `raise self.make_e
 |---------|-------|
 | `invenio-records-rest` | 1 |
 
-#### Warning 57 - 1 occurrence
+#### Warning 59 - 1 occurrence
 
 SAWarning: Identity map already had an identity for (<class 'invenio_jobs.models.Run'>, (UUID('2c8808d1-1a54-4ca4-8d9b-37698fa040ca'),), None), replacing it with newly flushed object.   Are there load operations occurring inside of an event handler within the flush?
 
@@ -679,7 +717,7 @@ SAWarning: Identity map already had an identity for (<class 'invenio_jobs.models
 |---------|-------|
 | `invenio-jobs` | 1 |
 
-#### Warning 58 - 1 occurrence
+#### Warning 60 - 1 occurrence
 
 SAWarning: Identity map already had an identity for (<class 'invenio_jobs.models.Run'>, (UUID('4e3e679e-886e-4a51-8d79-f0f7b7b9087d'),), None), replacing it with newly flushed object.   Are there load operations occurring inside of an event handler within the flush?
 
@@ -687,7 +725,7 @@ SAWarning: Identity map already had an identity for (<class 'invenio_jobs.models
 |---------|-------|
 | `invenio-jobs` | 1 |
 
-#### Warning 59 - 1 occurrence
+#### Warning 61 - 1 occurrence
 
 SAWarning: Identity map already had an identity for (<class 'invenio_jobs.models.Run'>, (UUID('6a04af80-813c-40ce-b332-35d55229a933'),), None), replacing it with newly flushed object.   Are there load operations occurring inside of an event handler within the flush?
 
@@ -695,7 +733,7 @@ SAWarning: Identity map already had an identity for (<class 'invenio_jobs.models
 |---------|-------|
 | `invenio-jobs` | 1 |
 
-#### Warning 60 - 1 occurrence
+#### Warning 62 - 1 occurrence
 
 SAWarning: Identity map already had an identity for (<class 'invenio_jobs.models.Run'>, (UUID('6fa776c7-b7f9-45d5-b247-d1f759897b83'),), None), replacing it with newly flushed object.   Are there load operations occurring inside of an event handler within the flush?
 
@@ -703,7 +741,7 @@ SAWarning: Identity map already had an identity for (<class 'invenio_jobs.models
 |---------|-------|
 | `invenio-jobs` | 1 |
 
-#### Warning 61 - 1 occurrence
+#### Warning 63 - 1 occurrence
 
 SAWarning: Identity map already had an identity for (<class 'invenio_jobs.models.Run'>, (UUID('7d0f8e37-8c26-4037-9f79-58be9b9ee2a2'),), None), replacing it with newly flushed object.   Are there load operations occurring inside of an event handler within the flush?
 
@@ -711,7 +749,7 @@ SAWarning: Identity map already had an identity for (<class 'invenio_jobs.models
 |---------|-------|
 | `invenio-jobs` | 1 |
 
-#### Warning 62 - 1 occurrence
+#### Warning 64 - 1 occurrence
 
 SAWarning: Identity map already had an identity for (<class 'invenio_jobs.models.Run'>, (UUID('d4f1fd6c-860b-441d-a61e-8d05a6894273'),), None), replacing it with newly flushed object.   Are there load operations occurring inside of an event handler within the flush?
 
@@ -719,7 +757,7 @@ SAWarning: Identity map already had an identity for (<class 'invenio_jobs.models
 |---------|-------|
 | `invenio-jobs` | 1 |
 
-#### Warning 63 - 1 occurrence
+#### Warning 65 - 1 occurrence
 
 SAWarning: Identity map already had an identity for (<class 'invenio_jobs.models.Run'>, (UUID('ed9a7020-2b65-4f9d-85c8-840038869bb9'),), None), replacing it with newly flushed object.   Are there load operations occurring inside of an event handler within the flush?
 
@@ -727,7 +765,7 @@ SAWarning: Identity map already had an identity for (<class 'invenio_jobs.models
 |---------|-------|
 | `invenio-jobs` | 1 |
 
-#### Warning 64 - 1 occurrence
+#### Warning 66 - 1 occurrence
 
 SAWarning: Object of type <ObjectVersion> not in session, add operation along 'Bucket.objects' will not proceed (This warning originated from the Session 'autoflush' process, which was invoked automatically in response to a user-initiated operation. Consider using ``no_autoflush`` context manager if this warning happened while initializing objects.)
 
@@ -735,7 +773,7 @@ SAWarning: Object of type <ObjectVersion> not in session, add operation along 'B
 |---------|-------|
 | `invenio-drafts-resources` | 1 |
 
-#### Warning 65 - 1 occurrence
+#### Warning 67 - 1 occurrence
 
 SyntaxWarning: "is" with 'int' literal. Did you mean "=="?
 
@@ -743,7 +781,7 @@ SyntaxWarning: "is" with 'int' literal. Did you mean "=="?
 |---------|-------|
 | `invenio-records-rest` | 1 |
 
-#### Warning 66 - 1 occurrence
+#### Warning 68 - 1 occurrence
 
 SyntaxWarning: invalid escape sequence '\?'
 
@@ -751,7 +789,7 @@ SyntaxWarning: invalid escape sequence '\?'
 |---------|-------|
 | `invenio-records-rest` | 1 |
 
-#### Warning 67 - 1 occurrence
+#### Warning 69 - 1 occurrence
 
 UserWarning: Please specify the OAISERVER_ID_PREFIX configuration.default value is: oai:runnervmg1sw1:
 
@@ -759,7 +797,7 @@ UserWarning: Please specify the OAISERVER_ID_PREFIX configuration.default value 
 |---------|-------|
 | `invenio-collections` | 1 |
 
-#### Warning 68 - 1 occurrence
+#### Warning 70 - 1 occurrence
 
 UserWarning: Test
 
@@ -767,7 +805,7 @@ UserWarning: Test
 |---------|-------|
 | `invenio-base` | 1 |
 
-#### Warning 69 - 1 occurrence
+#### Warning 71 - 1 occurrence
 
 UserWarning: Using the in-memory storage for tracking rate limits as no storage was explicitly specified. This is not recommended for production use. See: https://flask-limiter.readthedocs.io#configuring-a-storage-backend for documentation about configuring the storage backend.
 
