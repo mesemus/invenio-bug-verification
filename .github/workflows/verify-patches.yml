@@ -579,6 +579,11 @@ jobs:
       - name: Checkout invenio-testrig repository
         uses: actions/checkout@v4
 
+      - name: Setup Python and UV
+        uses: ./.github/actions/install-python
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
       - name: Generate and push report
         uses: ./.github/actions/generate-report
         with:
