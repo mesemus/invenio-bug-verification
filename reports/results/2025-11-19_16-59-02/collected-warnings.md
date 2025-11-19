@@ -2,7 +2,7 @@
 
 ### Patched
 
-#### Warning 1 - 56 occurrences
+#### Warning 1 - 64 occurrences
 
 DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
 
@@ -10,6 +10,7 @@ DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for r
 |---------|-------|
 | `invenio-stats` | 11 |
 | `invenio-oauth2server` | 10 |
+| `invenio-oauthclient` | 8 |
 | `invenio-drafts-resources` | 7 |
 | `invenio-banners` | 6 |
 | `invenio-github` | 6 |
@@ -34,7 +35,7 @@ DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor
 | `invenio-pages` | 2 |
 | `invenio-stats` | 2 |
 
-#### Warning 3 - 8 occurrences
+#### Warning 3 - 9 occurrences
 
 DeprecationWarning: 'crypt' is deprecated and slated for removal in Python 3.13
 
@@ -45,6 +46,7 @@ DeprecationWarning: 'crypt' is deprecated and slated for removal in Python 3.13
 | `invenio-drafts-resources` | 1 |
 | `invenio-github` | 1 |
 | `invenio-oauth2server` | 1 |
+| `invenio-oauthclient` | 1 |
 | `invenio-pages` | 1 |
 | `invenio-pidstore` | 1 |
 | `invenio-stats` | 1 |
@@ -111,6 +113,32 @@ RemovedInMarshmallow4Warning: The `context` parameter is deprecated and will be 
 
 #### Warning 9 - 6 occurrences
 
+DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('sphinxcontrib')`.
+
+| Package | Count |
+|---------|-------|
+| `invenio-administration` | 1 |
+| `invenio-banners` | 1 |
+| `invenio-drafts-resources` | 1 |
+| `invenio-oauthclient` | 1 |
+| `invenio-pages` | 1 |
+| `invenio-pidstore` | 1 |
+
+#### Warning 10 - 6 occurrences
+
+DeprecationWarning: datetime.datetime.utcfromtimestamp() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.fromtimestamp(timestamp, datetime.UTC).
+
+| Package | Count |
+|---------|-------|
+| `invenio-banners` | 1 |
+| `invenio-github` | 1 |
+| `invenio-oauth2server` | 1 |
+| `invenio-oauthclient` | 1 |
+| `invenio-pages` | 1 |
+| `invenio-stats` | 1 |
+
+#### Warning 11 - 6 occurrences
+
 DeprecationWarning: jsonschema.exceptions.RefResolutionError is deprecated as of version 4.18.0. If you wish to catch potential reference resolution errors, directly catch referencing.exceptions.Unresolvable.
 
 | Package | Count |
@@ -122,31 +150,7 @@ DeprecationWarning: jsonschema.exceptions.RefResolutionError is deprecated as of
 | `invenio-pages` | 1 |
 | `invenio-stats` | 1 |
 
-#### Warning 10 - 5 occurrences
-
-DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('sphinxcontrib')`.
-
-| Package | Count |
-|---------|-------|
-| `invenio-administration` | 1 |
-| `invenio-banners` | 1 |
-| `invenio-drafts-resources` | 1 |
-| `invenio-pages` | 1 |
-| `invenio-pidstore` | 1 |
-
-#### Warning 11 - 5 occurrences
-
-DeprecationWarning: datetime.datetime.utcfromtimestamp() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.fromtimestamp(timestamp, datetime.UTC).
-
-| Package | Count |
-|---------|-------|
-| `invenio-banners` | 1 |
-| `invenio-github` | 1 |
-| `invenio-oauth2server` | 1 |
-| `invenio-pages` | 1 |
-| `invenio-stats` | 1 |
-
-#### Warning 12 - 5 occurrences
+#### Warning 12 - 6 occurrences
 
 UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
 
@@ -155,6 +159,7 @@ UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.
 | `invenio-administration` | 1 |
 | `invenio-banners` | 1 |
 | `invenio-drafts-resources` | 1 |
+| `invenio-oauthclient` | 1 |
 | `invenio-pages` | 1 |
 | `invenio-pidstore` | 1 |
 
@@ -305,13 +310,21 @@ DeprecationWarning: The 'record_to_index' function is no longer expected to retu
 
 #### Warning 29 - 1 occurrence
 
+DeprecationWarning: The cern contrib is deprecated. Please use the generic keycloak instead.
+
+| Package | Count |
+|---------|-------|
+| `invenio-oauthclient` | 1 |
+
+#### Warning 30 - 1 occurrence
+
 PendingDeprecationWarning: The WSGI_PROXIES configuration is deprecated and it will be removed, use PROXYFIX_CONFIG instead
 
 | Package | Count |
 |---------|-------|
 | `invenio-base` | 1 |
 
-#### Warning 30 - 1 occurrence
+#### Warning 31 - 1 occurrence
 
 PendingDeprecationWarning: This feature is deprecated.
 
@@ -319,7 +332,7 @@ PendingDeprecationWarning: This feature is deprecated.
 |---------|-------|
 | `invenio-logging` | 1 |
 
-#### Warning 31 - 1 occurrence
+#### Warning 32 - 1 occurrence
 
 PytestCollectionWarning: cannot collect test class 'TestCustomView' because it has a __init__ constructor (from: tests/test_base.py)
 
@@ -327,7 +340,7 @@ PytestCollectionWarning: cannot collect test class 'TestCustomView' because it h
 |---------|-------|
 | `invenio-administration` | 1 |
 
-#### Warning 32 - 1 occurrence
+#### Warning 33 - 1 occurrence
 
 PytestCollectionWarning: cannot collect test class 'TestSchema' because it has a __init__ constructor (from: tests/test_marshmallow_utils.py)
 
@@ -335,7 +348,7 @@ PytestCollectionWarning: cannot collect test class 'TestSchema' because it has a
 |---------|-------|
 | `invenio-administration` | 1 |
 
-#### Warning 33 - 1 occurrence
+#### Warning 34 - 1 occurrence
 
 RemovedInMarshmallow4Warning: The 'missing' argument to fields is deprecated. Use 'load_default' instead.
 
@@ -343,7 +356,7 @@ RemovedInMarshmallow4Warning: The 'missing' argument to fields is deprecated. Us
 |---------|-------|
 | `invenio-drafts-resources` | 1 |
 
-#### Warning 34 - 1 occurrence
+#### Warning 35 - 1 occurrence
 
 RuntimeWarning: You are overriding the default OAuthlib "URL encoded" set of valid characters. Make sure that the characters defined in oauthlib.common.urlencoded are indeed limitting your needs.
 
@@ -351,7 +364,7 @@ RuntimeWarning: You are overriding the default OAuthlib "URL encoded" set of val
 |---------|-------|
 | `invenio-oauth2server` | 1 |
 
-#### Warning 35 - 1 occurrence
+#### Warning 36 - 1 occurrence
 
 SADeprecationWarning: Query.values() is deprecated and will be removed in a future release.  Please use Query.with_entities() (deprecated since: 1.4)
 
@@ -359,7 +372,7 @@ SADeprecationWarning: Query.values() is deprecated and will be removed in a futu
 |---------|-------|
 | `invenio-indexer` | 1 |
 
-#### Warning 36 - 1 occurrence
+#### Warning 37 - 1 occurrence
 
 SAWarning: Object of type <Client> not in session, add operation along 'User.oauth2clients' will not proceed
 
@@ -367,7 +380,7 @@ SAWarning: Object of type <Client> not in session, add operation along 'User.oau
 |---------|-------|
 | `invenio-oauth2server` | 1 |
 
-#### Warning 37 - 1 occurrence
+#### Warning 38 - 1 occurrence
 
 SAWarning: Object of type <ObjectVersion> not in session, add operation along 'Bucket.objects' will not proceed (This warning originated from the Session 'autoflush' process, which was invoked automatically in response to a user-initiated operation. Consider using ``no_autoflush`` context manager if this warning happened while initializing objects.)
 
@@ -375,7 +388,7 @@ SAWarning: Object of type <ObjectVersion> not in session, add operation along 'B
 |---------|-------|
 | `invenio-drafts-resources` | 1 |
 
-#### Warning 38 - 1 occurrence
+#### Warning 39 - 1 occurrence
 
 SAWarning: Object of type <Token> not in session, add operation along 'User.oauth2tokens' will not proceed
 
@@ -383,7 +396,7 @@ SAWarning: Object of type <Token> not in session, add operation along 'User.oaut
 |---------|-------|
 | `invenio-oauth2server` | 1 |
 
-#### Warning 39 - 1 occurrence
+#### Warning 40 - 1 occurrence
 
 UserWarning: Test
 
@@ -391,7 +404,7 @@ UserWarning: Test
 |---------|-------|
 | `invenio-base` | 1 |
 
-#### Warning 40 - 1 occurrence
+#### Warning 41 - 1 occurrence
 
 UserWarning: Using the in-memory storage for tracking rate limits as no storage was explicitly specified. This is not recommended for production use. See: https://flask-limiter.readthedocs.io#configuring-a-storage-backend for documentation about configuring the storage backend.
 
