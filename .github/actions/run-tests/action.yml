@@ -175,7 +175,10 @@ runs:
           cp "$OUTPUT_FILE" "$OUTPUT_FILE_NO_WARNINGS"
           
           # Remove GitHub Actions warning annotations
+          # - Remove entire line if it starts with ::warning
           sed -i '/^::warning file=/d' "$OUTPUT_FILE_NO_WARNINGS"
+          # - Remove ::warning part from lines that don't start with it (e.g., .::warning)
+          sed -i 's/::warning file=.*//' "$OUTPUT_FILE_NO_WARNINGS"
           
           # Remove Python deprecation and warning messages
           # Match various warning patterns:
