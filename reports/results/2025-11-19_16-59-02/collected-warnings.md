@@ -50,7 +50,7 @@ SAWarning: nested transaction already deassociated from connection
 | `invenio-records-ui` | 1 |
 | `invenio-stats` | 1 |
 
-#### Warning 3 - 34 occurrences
+#### Warning 3 - 36 occurrences
 
 DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor of the https://github.com/python-jsonschema/referencing library, which provides more compliant referencing behavior as well as more flexible APIs for customization. A future release will remove RefResolver. Please file a feature request (on referencing) if you are missing an API for the kind of customization you need.
 
@@ -65,6 +65,7 @@ DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor
 | `invenio-checks` | 2 |
 | `invenio-drafts-resources` | 2 |
 | `invenio-indexer` | 2 |
+| `invenio-notifications` | 2 |
 | `invenio-oaiserver` | 2 |
 | `invenio-pages` | 2 |
 | `invenio-records` | 2 |
@@ -89,7 +90,7 @@ RemovedInMarshmallow4Warning: The `context` parameter is deprecated and will be 
 | `invenio-files-rest` | 2 |
 | `invenio-pages` | 2 |
 
-#### Warning 5 - 21 occurrences
+#### Warning 5 - 22 occurrences
 
 DeprecationWarning: 'crypt' is deprecated and slated for removal in Python 3.13
 
@@ -106,6 +107,7 @@ DeprecationWarning: 'crypt' is deprecated and slated for removal in Python 3.13
 | `invenio-drafts-resources` | 1 |
 | `invenio-files-rest` | 1 |
 | `invenio-github` | 1 |
+| `invenio-notifications` | 1 |
 | `invenio-oaiserver` | 1 |
 | `invenio-oauth2server` | 1 |
 | `invenio-oauthclient` | 1 |
@@ -128,7 +130,7 @@ PendingDeprecationWarning: Schema().dump().data and Schema().dump().errors as we
 | `invenio-files-rest` | 3 |
 | `invenio-rest` | 3 |
 
-#### Warning 7 - 18 occurrences
+#### Warning 7 - 20 occurrences
 
 DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('fs')`.
 
@@ -142,9 +144,10 @@ DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('fs')`.
 | `invenio-collections` | 2 |
 | `invenio-drafts-resources` | 2 |
 | `invenio-files-rest` | 2 |
+| `invenio-notifications` | 2 |
 | `invenio-pages` | 2 |
 
-#### Warning 8 - 16 occurrences
+#### Warning 8 - 17 occurrences
 
 UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
 
@@ -160,13 +163,14 @@ UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.
 | `invenio-checks` | 1 |
 | `invenio-drafts-resources` | 1 |
 | `invenio-files-rest` | 1 |
+| `invenio-notifications` | 1 |
 | `invenio-oaiserver` | 1 |
 | `invenio-oauthclient` | 1 |
 | `invenio-pages` | 1 |
 | `invenio-pidstore` | 1 |
 | `invenio-records` | 1 |
 
-#### Warning 9 - 15 occurrences
+#### Warning 9 - 16 occurrences
 
 DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('sphinxcontrib')`.
 
@@ -182,13 +186,14 @@ DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('sphinxc
 | `invenio-collections` | 1 |
 | `invenio-drafts-resources` | 1 |
 | `invenio-files-rest` | 1 |
+| `invenio-notifications` | 1 |
 | `invenio-oaiserver` | 1 |
 | `invenio-oauthclient` | 1 |
 | `invenio-pages` | 1 |
 | `invenio-pidstore` | 1 |
 | `invenio-records` | 1 |
 
-#### Warning 10 - 15 occurrences
+#### Warning 10 - 16 occurrences
 
 DeprecationWarning: jsonschema.exceptions.RefResolutionError is deprecated as of version 4.18.0. If you wish to catch potential reference resolution errors, directly catch referencing.exceptions.Unresolvable.
 
@@ -202,6 +207,7 @@ DeprecationWarning: jsonschema.exceptions.RefResolutionError is deprecated as of
 | `invenio-collections` | 1 |
 | `invenio-drafts-resources` | 1 |
 | `invenio-indexer` | 1 |
+| `invenio-notifications` | 1 |
 | `invenio-oaiserver` | 1 |
 | `invenio-pages` | 1 |
 | `invenio-records` | 1 |
@@ -294,7 +300,7 @@ DeprecationWarning: datetime.datetime.utcfromtimestamp() is deprecated and sched
 | `invenio-stats` | 1 |
 | `invenio-webhooks` | 1 |
 
-#### Warning 16 - 9 occurrences
+#### Warning 16 - 10 occurrences
 
 DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('fs.opener')`.
 
@@ -308,9 +314,10 @@ DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('fs.open
 | `invenio-collections` | 1 |
 | `invenio-drafts-resources` | 1 |
 | `invenio-files-rest` | 1 |
+| `invenio-notifications` | 1 |
 | `invenio-pages` | 1 |
 
-#### Warning 17 - 8 occurrences
+#### Warning 17 - 9 occurrences
 
 DeprecationWarning: The '__version_info__' attribute is deprecated and will be removed in in a future version. Use feature detection or 'packaging.Version(importlib.metadata.version("marshmallow")).release' instead.
 
@@ -323,9 +330,10 @@ DeprecationWarning: The '__version_info__' attribute is deprecated and will be r
 | `invenio-checks` | 1 |
 | `invenio-collections` | 1 |
 | `invenio-drafts-resources` | 1 |
+| `invenio-notifications` | 1 |
 | `invenio-pages` | 1 |
 
-#### Warning 18 - 7 occurrences
+#### Warning 18 - 8 occurrences
 
 DeprecationWarning: Link is deprecated and will be removed in v14.0. Use `ExternalLink` for third-party links and `EndpointLink` for InvenioRDM links.
 
@@ -337,6 +345,7 @@ DeprecationWarning: Link is deprecated and will be removed in v14.0. Use `Extern
 | `invenio-checks` | 1 |
 | `invenio-collections` | 1 |
 | `invenio-drafts-resources` | 1 |
+| `invenio-notifications` | 1 |
 | `invenio-pages` | 1 |
 
 #### Warning 19 - 7 occurrences
