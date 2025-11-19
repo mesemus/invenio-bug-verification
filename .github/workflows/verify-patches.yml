@@ -24,7 +24,7 @@ env:
   EXTRAS: "tests,opensearch2,s3,devs,s3fs,oaipmh,rdf,sparql,postgresql,admin,docs"
 
 jobs:
-  load-config:
+  load_config:
     name: Load Test Configuration
     runs-on: ubuntu-latest
     outputs:
@@ -48,9 +48,9 @@ jobs:
         with:
           config_file: ${{ inputs.config_file }}
 
-  create-report-directory:
+  create_report_directory:
     name: Create Report Directory
-    needs: load-config
+    needs: load_config
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -145,7 +145,7 @@ jobs:
       - name: Upload report artifact metadata
         uses: actions/upload-artifact@v4
         with:
-          name: create-report-directory
+          name: create_report_directory
           path: artifacts/
           retention-days: 1
 
@@ -155,13 +155,13 @@ jobs:
           report_dir: ${{ steps.create_dir.outputs.report_dir }}
           report_file: ${{ steps.create_dir.outputs.report_file }}
           report_timestamp: ${{ steps.create_dir.outputs.report_timestamp }}
-          test_name: ${{ needs.load-config.outputs.test_name }}
-          config_file: ${{ needs.load-config.outputs.absolute_config_file }}
+          test_name: ${{ needs.load_config.outputs.test_name }}
+          config_file: ${{ needs.load_config.outputs.absolute_config_file }}
           add_report_summary: true
 
-  extract-tested-packages:
+  extract_tested_packages:
     name: Extract Invenio Packages
-    needs: load-config
+    needs: load_config
     runs-on: ubuntu-latest
     outputs:
       packages: ${{ steps.extract.outputs.packages }}
@@ -201,12 +201,12 @@ jobs:
           fi
 
           # Add package filter if provided
-          if [ -n "${{ needs.load-config.outputs.packages }}" ]; then
-            echo "Filtering packages: ${{ needs.load-config.outputs.packages }}"
-            opts+=("--filter-packages" ${{ needs.load-config.outputs.packages }})
+          if [ -n "${{ needs.load_config.outputs.packages }}" ]; then
+            echo "Filtering packages: ${{ needs.load_config.outputs.packages }}"
+            opts+=("--filter-packages" ${{ needs.load_config.outputs.packages }})
           fi
 
-          $TOOLS_PYTHON scripts/extract_packages_to_test.py zenodo-rdm/uv.lock ${{ needs.load-config.outputs.absolute_config_file }} packages.sh ${opts[@]}
+          $TOOLS_PYTHON scripts/extract_packages_to_test.py zenodo-rdm/uv.lock ${{ needs.load_config.outputs.absolute_config_file }} packages.sh ${opts[@]}
 
           # Source the output variables
           source packages.sh
@@ -218,12 +218,12 @@ jobs:
           echo "done_packages=$done_packages" >> $GITHUB_OUTPUT
           echo "previous_report=$PREVIOUS_REPORT" >> $GITHUB_OUTPUT
 
-  test-packages:
+  test_packages:
     name: Test ${{ matrix.package }}
     needs:
-      - load-config
-      - extract-tested-packages
-      - create-report-directory
+      - load_config
+      - extract_tested_packages
+      - create_report_directory
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -233,7 +233,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        package: ${{ fromJson(needs.extract-tested-packages.outputs.packages) }}
+        package: ${{ fromJson(needs.extract_tested_packages.outputs.packages) }}
 
     steps:
       - name: Checkout invenio-testrig repository
@@ -256,7 +256,7 @@ jobs:
         run: |
 
           # Use lookup_package.py to get repository information
-          eval $($TOOLS_PYTHON scripts/lookup_package.py ${{ needs.load-config.outputs.absolute_config_file }} ${{ matrix.package }})
+          eval $($TOOLS_PYTHON scripts/lookup_package.py ${{ needs.load_config.outputs.absolute_config_file }} ${{ matrix.package }})
 
           # Set outputs
           echo "original_repository_url=$original_repository_url" >> $GITHUB_OUTPUT
@@ -314,7 +314,7 @@ jobs:
         run: |
 
           # Use apply_patches.py to check and apply patches
-          $TOOLS_PYTHON scripts/apply_patches.py ${{ matrix.package }} package-repo/.venv ${{ needs.load-config.outputs.absolute_config_file }} patch-variables.sh
+          $TOOLS_PYTHON scripts/apply_patches.py ${{ matrix.package }} package-repo/.venv ${{ needs.load_config.outputs.absolute_config_file }} patch-variables.sh
 
           # Source the output variables
           source patch-variables.sh
@@ -346,13 +346,13 @@ jobs:
           package-path: package-repo
           package-name: ${{ matrix.package }}
           test-type: patched
-          timeout: ${{ needs.load-config.outputs.test_timeout }}
+          timeout: ${{ needs.load_config.outputs.test_timeout }}
           verbose-pytest: ${{ inputs.verbose_pytest }}
 
       # if the previous step failed, we will try to run the tests without patches
       - name: Clone package repository for tests without patches
         continue-on-error: true
-        if: env.SO_FAR_OK == '1' && steps.test_with_patch.outputs.conclusion == 'failure' && needs.load-config.outputs.run_original_tests == 'true'
+        if: env.SO_FAR_OK == '1' && steps.test_with_patch.outputs.conclusion == 'failure' && needs.load_config.outputs.run_original_tests == 'true'
         uses: ./.github/actions/clone-package
         with:
           repository-url: ${{ steps.load_patches.outputs.original_repository_url }}
@@ -360,7 +360,7 @@ jobs:
           destination: package-repo
 
       - name: Setup virtual environment and install dependencies for original package tests
-        if: env.SO_FAR_OK == '1' && steps.test_with_patch.outputs.conclusion == 'failure' && needs.load-config.outputs.run_original_tests == 'true'
+        if: env.SO_FAR_OK == '1' && steps.test_with_patch.outputs.conclusion == 'failure' && needs.load_config.outputs.run_original_tests == 'true'
         continue-on-error: true
         uses: ./.github/actions/setup-venv
         with:
@@ -371,13 +371,13 @@ jobs:
       - name: Run tests on original package without patches
         id: test_without_patch
         continue-on-error: true
-        if: env.SO_FAR_OK == '1' && steps.test_with_patch.outputs.conclusion == 'failure' && needs.load-config.outputs.run_original_tests == 'true'
+        if: env.SO_FAR_OK == '1' && steps.test_with_patch.outputs.conclusion == 'failure' && needs.load_config.outputs.run_original_tests == 'true'
         uses: ./.github/actions/run-tests
         with:
           package-path: package-repo
           package-name: ${{ matrix.package }}
           test-type: original
-          timeout: ${{ needs.load-config.outputs.test_timeout }}
+          timeout: ${{ needs.load_config.outputs.test_timeout }}
           verbose-pytest: ${{ inputs.verbose_pytest }}
 
       - name: Compare test results
@@ -503,11 +503,11 @@ jobs:
         if: always()
         uses: ./.github/actions/generate-report
         with:
-          report-dir: ${{ needs.create-report-directory.outputs.report_dir }}
-          report-file: ${{ needs.create-report-directory.outputs.report_file }}
-          report-timestamp: ${{ needs.create-report-directory.outputs.report_timestamp }}
-          test-name: ${{ needs.load-config.outputs.test_name }}
-          config-file: ${{ needs.load-config.outputs.absolute_config_file }}
+          report_dir: ${{ needs.create_report_directory.outputs.report_dir }}
+          report_file: ${{ needs.create_report_directory.outputs.report_file }}
+          report_timestamp: ${{ needs.create_report_directory.outputs.report_timestamp }}
+          test_name: ${{ needs.load_config.outputs.test_name }}
+          config_file: ${{ needs.load_config.outputs.absolute_config_file }}
 
       - name: Fail job if any tests failed
         if: always()
@@ -523,21 +523,21 @@ jobs:
             exit 1
           fi
 
-  copy-previous-artifacts:
+  copy_previous_artifacts:
     name: Copy Previous Artifacts
     needs:
-      - load-config
-      - extract-tested-packages
-      - create-report-directory
+      - load_config
+      - extract_tested_packages
+      - create_report_directory
     runs-on: ubuntu-latest
     permissions:
       contents: write
       actions: read
-    if: needs.extract-tested-packages.outputs.done_packages != '[]'
+    if: needs.extract_tested_packages.outputs.done_packages != '[]'
     strategy:
       fail-fast: false
       matrix:
-        package: ${{ fromJson(needs.extract-tested-packages.outputs.done_packages) }}
+        package: ${{ fromJson(needs.extract_tested_packages.outputs.done_packages) }}
 
     steps:
       - name: Checkout invenio-testrig repository
@@ -545,7 +545,7 @@ jobs:
 
       - name: Copy artifacts from previous report
         run: |
-          PREVIOUS_REPORT="${{ needs.extract-tested-packages.outputs.previous_report }}"
+          PREVIOUS_REPORT="${{ needs.extract_tested_packages.outputs.previous_report }}"
           PACKAGE="${{ matrix.package }}"
 
           echo "Copying artifacts for $PACKAGE from $PREVIOUS_REPORT"
@@ -575,19 +575,19 @@ jobs:
         if: always()
         uses: ./.github/actions/generate-report
         with:
-          report_dir: ${{ needs.create-report-directory.outputs.report_dir }}
-          report_file: ${{ needs.create-report-directory.outputs.report_file }}
-          report_timestamp: ${{ needs.create-report-directory.outputs.report_timestamp }}
-          test_name: ${{ needs.load-config.outputs.test_name }}
-          config_file: ${{ needs.load-config.outputs.absolute_config_file }}
+          report_dir: ${{ needs.create_report_directory.outputs.report_dir }}
+          report_file: ${{ needs.create_report_directory.outputs.report_file }}
+          report_timestamp: ${{ needs.create_report_directory.outputs.report_timestamp }}
+          test_name: ${{ needs.load_config.outputs.test_name }}
+          config_file: ${{ needs.load_config.outputs.absolute_config_file }}
 
-  generate-report:
+  generate_report:
     name: Generate Summary Report
     needs:
-      - create-report-directory
-      - test-packages
-      - copy-previous-artifacts
-      - load-config
+      - create_report_directory
+      - test_packages
+      - copy_previous_artifacts
+      - load_config
     runs-on: ubuntu-latest
     if: always()
     permissions:
@@ -605,9 +605,9 @@ jobs:
       - name: Generate and push report
         uses: ./.github/actions/generate-report
         with:
-          report_dir: ${{ needs.create-report-directory.outputs.report_dir }}
-          report_file: ${{ needs.create-report-directory.outputs.report_file }}
-          report_timestamp: ${{ needs.create-report-directory.outputs.report_timestamp }}
-          test_name: ${{ needs.load-config.outputs.test_name }}
-          config_file: ${{ needs.load-config.outputs.absolute_config_file }}
+          report_dir: ${{ needs.create_report_directory.outputs.report_dir }}
+          report_file: ${{ needs.create_report_directory.outputs.report_file }}
+          report_timestamp: ${{ needs.create_report_directory.outputs.report_timestamp }}
+          test_name: ${{ needs.load_config.outputs.test_name }}
+          config_file: ${{ needs.load_config.outputs.absolute_config_file }}
           report_status: finished
