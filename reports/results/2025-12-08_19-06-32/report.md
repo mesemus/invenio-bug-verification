@@ -2,15 +2,15 @@
 
 > **⏳ Status: Running** - This report is being updated as tests complete.
 
-_Last updated: 2025-12-08 19:08:01 UTC_
+_Last updated: 2025-12-08 19:08:09 UTC_
 
 ## 📊 Overall Status
 
 | Metric | Count |
 |--------|-------|
-| **Total Packages** | 15 |
+| **Total Packages** | 17 |
 | **Patched Packages** | 0 |
-| **Unpatched Packages** | 15 |
+| **Unpatched Packages** | 17 |
 
 ### Patch Results
 | Result | Count |
@@ -42,11 +42,13 @@ _Last updated: 2025-12-08 19:08:01 UTC_
 | `invenio-app` | ⏭️  Skipped |
 | `invenio-theme` | ⏭️  Skipped |
 | `invenio-assets` | ⏭️  Skipped |
+| `invenio-pidstore` | ⏭️  Skipped |
 | `invenio-indexer` | ⏭️  Skipped |
 | `invenio-access` | ⏭️  Skipped |
 | `invenio-records-ui` | ⏭️  Skipped |
 | `invenio-search-ui` | ⏭️  Skipped |
 | `invenio-formatter` | ⏭️  Skipped |
+| `invenio-records-rest` | ⏭️  Skipped |
 | `invenio-oauth2server` | ⏭️  Skipped |
 | `invenio-accounts` | ⏭️  Skipped |
 | `invenio-records` | ⏭️  Skipped |
