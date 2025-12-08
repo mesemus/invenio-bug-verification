@@ -2,15 +2,15 @@
 
 > **⏳ Status: Running** - This report is being updated as tests complete.
 
-_Last updated: 2025-12-08 19:09:30 UTC_
+_Last updated: 2025-12-08 19:09:46 UTC_
 
 ## 📊 Overall Status
 
 | Metric | Count |
 |--------|-------|
-| **Total Packages** | 38 |
+| **Total Packages** | 41 |
 | **Patched Packages** | 7 |
-| **Unpatched Packages** | 31 |
+| **Unpatched Packages** | 34 |
 
 ### Patch Results
 | Result | Count |
@@ -44,6 +44,7 @@ _Last updated: 2025-12-08 19:09:30 UTC_
 | `invenio-app` | ⏭️  Skipped |
 | `invenio-theme` | ⏭️  Skipped |
 | `invenio-assets` | ⏭️  Skipped |
+| `invenio-celery` | ⏭️  Skipped |
 | `invenio-pidstore` | ⏭️  Skipped |
 | `invenio-db` | ⏭️  Skipped |
 | `invenio-indexer` | ⏭️  Skipped |
@@ -52,11 +53,13 @@ _Last updated: 2025-12-08 19:09:30 UTC_
 | `invenio-rest` | ⏭️  Skipped |
 | `invenio-records-permissions` | ⏭️  Skipped |
 | `invenio-records-ui` | ⏭️  Skipped |
+| `invenio-stats` | ⏭️  Skipped |
 | `invenio-userprofiles` | ⏭️  Skipped |
 | `invenio-previewer` | ⏭️  Skipped |
 | `invenio-search-ui` | ⏭️  Skipped |
 | `invenio-records-files` | ⏭️  Skipped |
 | `invenio-logging` | ⏭️  Skipped |
+| `invenio-sitemap` | ⏭️  Skipped |
 | `invenio-files-rest` | ⏭️  Skipped |
 | `invenio-formatter` | ⏭️  Skipped |
 | `invenio-records-rest` | ⏭️  Skipped |
