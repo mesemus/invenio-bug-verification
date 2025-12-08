@@ -21,13 +21,22 @@ PendingDeprecationWarning: Schema().dump().data and Schema().dump().errors as we
 
 #### Warning 3 - 2 occurrences
 
+DeprecationWarning: Using the initialization functions in flask_caching.backend is deprecated.  Use the a full path to backend classes directly.
+
+| Package | Count |
+|---------|-------|
+| `invenio-app` | 1 |
+| `invenio-sitemap` | 1 |
+
+#### Warning 4 - 2 occurrences
+
 FutureWarning: CSRF validation will be enabled by default in the version 1.3.x
 
 | Package | Count |
 |---------|-------|
 | `invenio-rest` | 2 |
 
-#### Warning 4 - 2 occurrences
+#### Warning 5 - 2 occurrences
 
 UserWarning: Set configuration variable SECRET_KEY with random string
 
@@ -36,21 +45,13 @@ UserWarning: Set configuration variable SECRET_KEY with random string
 | `invenio-app` | 1 |
 | `invenio-config` | 1 |
 
-#### Warning 5 - 1 occurrence
+#### Warning 6 - 1 occurrence
 
 DeprecationWarning: 'crypt' is deprecated and slated for removal in Python 3.13
 
 | Package | Count |
 |---------|-------|
 | `invenio-userprofiles` | 1 |
-
-#### Warning 6 - 1 occurrence
-
-DeprecationWarning: Using the initialization functions in flask_caching.backend is deprecated.  Use the a full path to backend classes directly.
-
-| Package | Count |
-|---------|-------|
-| `invenio-app` | 1 |
 
 #### Warning 7 - 1 occurrence
 

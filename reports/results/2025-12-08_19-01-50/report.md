@@ -2,20 +2,20 @@
 
 > **⏳ Status: Running** - This report is being updated as tests complete.
 
-_Last updated: 2025-12-08 19:03:48 UTC_
+_Last updated: 2025-12-08 19:04:07 UTC_
 
 ## 📊 Overall Status
 
 | Metric | Count |
 |--------|-------|
-| **Total Packages** | 8 |
-| **Patched Packages** | 8 |
+| **Total Packages** | 10 |
+| **Patched Packages** | 10 |
 | **Unpatched Packages** | 0 |
 
 ### Patch Results
 | Result | Count |
 |--------|-------|
-| ✅ Fixed | 6 |
+| ✅ Fixed | 8 |
 | ❌ Regressions | 1 |
 | ⚠️  Still Failing | 1 |
 | ℹ️  No Change | 0 |
@@ -48,6 +48,8 @@ _Last updated: 2025-12-08 19:03:48 UTC_
 | `invenio-rest` | pytest-invenio | ⏭️  Skip | ✅ Pass<br>[output](packages/invenio-rest/test-output-patched.txt)<br>[output-no-warnings](packages/invenio-rest/test-output-no-warnings-patched.txt)<br>[xml](packages/invenio-rest/test-report-patched.xml)<br>[warnings](packages/invenio-rest/warnings-patched.md) | ✅ Patch applied successfully, tests passed |
 | `invenio-userprofiles` | pytest-invenio | ⏭️  Skip | ✅ Pass<br>[output](packages/invenio-userprofiles/test-output-patched.txt)<br>[output-no-warnings](packages/invenio-userprofiles/test-output-no-warnings-patched.txt)<br>[xml](packages/invenio-userprofiles/test-report-patched.xml)<br>[warnings](packages/invenio-userprofiles/warnings-patched.md) | ✅ Patch applied successfully, tests passed |
 | `invenio-records-files` | pytest-invenio | ❌ Fail<br>[output](packages/invenio-records-files/test-output-original.txt)<br>[output-no-warnings](packages/invenio-records-files/test-output-no-warnings-original.txt) | ❌ Fail<br>[output](packages/invenio-records-files/test-output-patched.txt)<br>[output-no-warnings](packages/invenio-records-files/test-output-no-warnings-patched.txt) | ⚠️ Tests still failing after patch |
+| `invenio-sitemap` | pytest-invenio | ⏭️  Skip | ✅ Pass<br>[output](packages/invenio-sitemap/test-output-patched.txt)<br>[output-no-warnings](packages/invenio-sitemap/test-output-no-warnings-patched.txt)<br>[xml](packages/invenio-sitemap/test-report-patched.xml)<br>[warnings](packages/invenio-sitemap/warnings-patched.md) | ✅ Patch applied successfully, tests passed |
+| `invenio-i18n` | pytest-invenio | ⏭️  Skip | ✅ Pass<br>[output](packages/invenio-i18n/test-output-patched.txt)<br>[output-no-warnings](packages/invenio-i18n/test-output-no-warnings-patched.txt)<br>[xml](packages/invenio-i18n/test-report-patched.xml) | ✅ Patch applied successfully, tests passed |
 
 ## Collected Warnings
 
@@ -72,13 +74,22 @@ PendingDeprecationWarning: Schema().dump().data and Schema().dump().errors as we
 
 #### Warning 3 - 2 occurrences
 
+DeprecationWarning: Using the initialization functions in flask_caching.backend is deprecated.  Use the a full path to backend classes directly.
+
+| Package | Count |
+|---------|-------|
+| `invenio-app` | 1 |
+| `invenio-sitemap` | 1 |
+
+#### Warning 4 - 2 occurrences
+
 FutureWarning: CSRF validation will be enabled by default in the version 1.3.x
 
 | Package | Count |
 |---------|-------|
 | `invenio-rest` | 2 |
 
-#### Warning 4 - 2 occurrences
+#### Warning 5 - 2 occurrences
 
 UserWarning: Set configuration variable SECRET_KEY with random string
 
@@ -87,21 +98,13 @@ UserWarning: Set configuration variable SECRET_KEY with random string
 | `invenio-app` | 1 |
 | `invenio-config` | 1 |
 
-#### Warning 5 - 1 occurrence
+#### Warning 6 - 1 occurrence
 
 DeprecationWarning: 'crypt' is deprecated and slated for removal in Python 3.13
 
 | Package | Count |
 |---------|-------|
 | `invenio-userprofiles` | 1 |
-
-#### Warning 6 - 1 occurrence
-
-DeprecationWarning: Using the initialization functions in flask_caching.backend is deprecated.  Use the a full path to backend classes directly.
-
-| Package | Count |
-|---------|-------|
-| `invenio-app` | 1 |
 
 #### Warning 7 - 1 occurrence
 
