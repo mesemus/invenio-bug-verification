@@ -2,20 +2,20 @@
 
 > **⏳ Status: Running** - This report is being updated as tests complete.
 
-_Last updated: 2025-12-08 19:09:09 UTC_
+_Last updated: 2025-12-08 19:09:16 UTC_
 
 ## 📊 Overall Status
 
 | Metric | Count |
 |--------|-------|
-| **Total Packages** | 32 |
-| **Patched Packages** | 6 |
+| **Total Packages** | 33 |
+| **Patched Packages** | 7 |
 | **Unpatched Packages** | 26 |
 
 ### Patch Results
 | Result | Count |
 |--------|-------|
-| ✅ Fixed | 6 |
+| ✅ Fixed | 7 |
 | ❌ Regressions | 0 |
 | ⚠️  Still Failing | 0 |
 | ℹ️  No Change | 0 |
@@ -67,6 +67,7 @@ _Last updated: 2025-12-08 19:09:09 UTC_
 | Package | Patches Applied | Original | Patched | Result |
 |---------|----------------|--------|-------|--------|
 | `invenio-banners` | invenio-records-resources | ⏭️  Skip | ✅ Pass<br>[output](packages/invenio-banners/test-output-patched.txt)<br>[output-no-warnings](packages/invenio-banners/test-output-no-warnings-patched.txt)<br>[xml](packages/invenio-banners/test-report-patched.xml)<br>[warnings](packages/invenio-banners/warnings-patched.md) | ✅ Patch applied successfully, tests passed |
+| `invenio-notifications` | invenio-records-resources | ⏭️  Skip | ✅ Pass<br>[output](packages/invenio-notifications/test-output-patched.txt)<br>[output-no-warnings](packages/invenio-notifications/test-output-no-warnings-patched.txt)<br>[xml](packages/invenio-notifications/test-report-patched.xml)<br>[warnings](packages/invenio-notifications/warnings-patched.md) | ✅ Patch applied successfully, tests passed |
 | `invenio-jobs` | invenio-records-resources | ⏭️  Skip | ✅ Pass<br>[output](packages/invenio-jobs/test-output-patched.txt)<br>[output-no-warnings](packages/invenio-jobs/test-output-no-warnings-patched.txt)<br>[xml](packages/invenio-jobs/test-report-patched.xml)<br>[warnings](packages/invenio-jobs/warnings-patched.md) | ✅ Patch applied successfully, tests passed |
 | `invenio-checks` | invenio-records-resources | ⏭️  Skip | ✅ Pass<br>[output](packages/invenio-checks/test-output-patched.txt)<br>[output-no-warnings](packages/invenio-checks/test-output-no-warnings-patched.txt)<br>[xml](packages/invenio-checks/test-report-patched.xml)<br>[warnings](packages/invenio-checks/warnings-patched.md) | ✅ Patch applied successfully, tests passed |
 | `invenio-audit-logs` | invenio-records-resources | ⏭️  Skip | ✅ Pass<br>[output](packages/invenio-audit-logs/test-output-patched.txt)<br>[output-no-warnings](packages/invenio-audit-logs/test-output-no-warnings-patched.txt)<br>[xml](packages/invenio-audit-logs/test-report-patched.xml)<br>[warnings](packages/invenio-audit-logs/warnings-patched.md) | ✅ Patch applied successfully, tests passed |
@@ -89,18 +90,7 @@ DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for r
 | `invenio-github` | 6 |
 | `invenio-administration` | 3 |
 
-#### Warning 2 - 11 occurrences
-
-RemovedInMarshmallow4Warning: The `context` parameter is deprecated and will be removed in marshmallow 4.0. Use `contextvars.ContextVar` to pass context instead.
-
-| Package | Count |
-|---------|-------|
-| `invenio-jobs` | 4 |
-| `invenio-audit-logs` | 3 |
-| `invenio-banners` | 2 |
-| `invenio-checks` | 2 |
-
-#### Warning 3 - 10 occurrences
+#### Warning 2 - 12 occurrences
 
 DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('fs')`.
 
@@ -111,8 +101,9 @@ DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('fs')`.
 | `invenio-banners` | 2 |
 | `invenio-checks` | 2 |
 | `invenio-jobs` | 2 |
+| `invenio-notifications` | 2 |
 
-#### Warning 4 - 10 occurrences
+#### Warning 3 - 12 occurrences
 
 DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor of the https://github.com/python-jsonschema/referencing library, which provides more compliant referencing behavior as well as more flexible APIs for customization. A future release will remove RefResolver. Please file a feature request (on referencing) if you are missing an API for the kind of customization you need.
 
@@ -123,8 +114,20 @@ DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor
 | `invenio-banners` | 2 |
 | `invenio-checks` | 2 |
 | `invenio-jobs` | 2 |
+| `invenio-notifications` | 2 |
 
-#### Warning 5 - 7 occurrences
+#### Warning 4 - 11 occurrences
+
+RemovedInMarshmallow4Warning: The `context` parameter is deprecated and will be removed in marshmallow 4.0. Use `contextvars.ContextVar` to pass context instead.
+
+| Package | Count |
+|---------|-------|
+| `invenio-jobs` | 4 |
+| `invenio-audit-logs` | 3 |
+| `invenio-banners` | 2 |
+| `invenio-checks` | 2 |
+
+#### Warning 5 - 8 occurrences
 
 RemovedInMarshmallow4Warning: The 'default' argument to fields is deprecated. Use 'dump_default' instead.
 
@@ -135,8 +138,9 @@ RemovedInMarshmallow4Warning: The 'default' argument to fields is deprecated. Us
 | `invenio-administration` | 1 |
 | `invenio-audit-logs` | 1 |
 | `invenio-banners` | 1 |
+| `invenio-notifications` | 1 |
 
-#### Warning 6 - 6 occurrences
+#### Warning 6 - 7 occurrences
 
 DeprecationWarning: 'crypt' is deprecated and slated for removal in Python 3.13
 
@@ -148,8 +152,9 @@ DeprecationWarning: 'crypt' is deprecated and slated for removal in Python 3.13
 | `invenio-checks` | 1 |
 | `invenio-github` | 1 |
 | `invenio-jobs` | 1 |
+| `invenio-notifications` | 1 |
 
-#### Warning 7 - 5 occurrences
+#### Warning 7 - 6 occurrences
 
 DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('fs.opener')`.
 
@@ -160,8 +165,9 @@ DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('fs.open
 | `invenio-banners` | 1 |
 | `invenio-checks` | 1 |
 | `invenio-jobs` | 1 |
+| `invenio-notifications` | 1 |
 
-#### Warning 8 - 5 occurrences
+#### Warning 8 - 6 occurrences
 
 DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('sphinxcontrib')`.
 
@@ -172,8 +178,9 @@ DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('sphinxc
 | `invenio-banners` | 1 |
 | `invenio-checks` | 1 |
 | `invenio-jobs` | 1 |
+| `invenio-notifications` | 1 |
 
-#### Warning 9 - 5 occurrences
+#### Warning 9 - 6 occurrences
 
 DeprecationWarning: The '__version_info__' attribute is deprecated and will be removed in in a future version. Use feature detection or 'packaging.Version(importlib.metadata.version("marshmallow")).release' instead.
 
@@ -184,8 +191,35 @@ DeprecationWarning: The '__version_info__' attribute is deprecated and will be r
 | `invenio-banners` | 1 |
 | `invenio-checks` | 1 |
 | `invenio-jobs` | 1 |
+| `invenio-notifications` | 1 |
 
-#### Warning 10 - 5 occurrences
+#### Warning 10 - 6 occurrences
+
+DeprecationWarning: jsonschema.exceptions.RefResolutionError is deprecated as of version 4.18.0. If you wish to catch potential reference resolution errors, directly catch referencing.exceptions.Unresolvable.
+
+| Package | Count |
+|---------|-------|
+| `invenio-administration` | 1 |
+| `invenio-audit-logs` | 1 |
+| `invenio-banners` | 1 |
+| `invenio-checks` | 1 |
+| `invenio-jobs` | 1 |
+| `invenio-notifications` | 1 |
+
+#### Warning 11 - 6 occurrences
+
+UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+
+| Package | Count |
+|---------|-------|
+| `invenio-administration` | 1 |
+| `invenio-audit-logs` | 1 |
+| `invenio-banners` | 1 |
+| `invenio-checks` | 1 |
+| `invenio-jobs` | 1 |
+| `invenio-notifications` | 1 |
+
+#### Warning 12 - 5 occurrences
 
 DeprecationWarning: Using the initialization functions in flask_caching.backend is deprecated.  Use the a full path to backend classes directly.
 
@@ -197,19 +231,7 @@ DeprecationWarning: Using the initialization functions in flask_caching.backend 
 | `invenio-github` | 1 |
 | `invenio-jobs` | 1 |
 
-#### Warning 11 - 5 occurrences
-
-DeprecationWarning: jsonschema.exceptions.RefResolutionError is deprecated as of version 4.18.0. If you wish to catch potential reference resolution errors, directly catch referencing.exceptions.Unresolvable.
-
-| Package | Count |
-|---------|-------|
-| `invenio-administration` | 1 |
-| `invenio-audit-logs` | 1 |
-| `invenio-banners` | 1 |
-| `invenio-checks` | 1 |
-| `invenio-jobs` | 1 |
-
-#### Warning 12 - 5 occurrences
+#### Warning 13 - 5 occurrences
 
 FutureWarning: CSRF validation will be enabled by default in the version 1.3.x
 
@@ -219,18 +241,6 @@ FutureWarning: CSRF validation will be enabled by default in the version 1.3.x
 | `invenio-audit-logs` | 1 |
 | `invenio-banners` | 1 |
 | `invenio-github` | 1 |
-| `invenio-jobs` | 1 |
-
-#### Warning 13 - 5 occurrences
-
-UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
-
-| Package | Count |
-|---------|-------|
-| `invenio-administration` | 1 |
-| `invenio-audit-logs` | 1 |
-| `invenio-banners` | 1 |
-| `invenio-checks` | 1 |
 | `invenio-jobs` | 1 |
 
 #### Warning 14 - 4 occurrences
