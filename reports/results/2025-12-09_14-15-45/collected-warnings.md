@@ -2,13 +2,14 @@
 
 ### Patched
 
-#### Warning 1 - 12 occurrences
+#### Warning 1 - 18 occurrences
 
 DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
 
 | Package | Count |
 |---------|-------|
 | `invenio-banners` | 6 |
+| `invenio-github` | 6 |
 | `invenio-pages` | 6 |
 
 #### Warning 2 - 6 occurrences
@@ -46,16 +47,47 @@ RemovedInMarshmallow4Warning: The `context` parameter is deprecated and will be 
 | `invenio-banners` | 2 |
 | `invenio-pages` | 2 |
 
-#### Warning 6 - 2 occurrences
+#### Warning 6 - 3 occurrences
 
 DeprecationWarning: 'crypt' is deprecated and slated for removal in Python 3.13
 
 | Package | Count |
 |---------|-------|
 | `invenio-banners` | 1 |
+| `invenio-github` | 1 |
 | `invenio-pages` | 1 |
 
-#### Warning 7 - 2 occurrences
+#### Warning 7 - 3 occurrences
+
+DeprecationWarning: Using the initialization functions in flask_caching.backend is deprecated.  Use the a full path to backend classes directly.
+
+| Package | Count |
+|---------|-------|
+| `invenio-banners` | 1 |
+| `invenio-github` | 1 |
+| `invenio-pages` | 1 |
+
+#### Warning 8 - 3 occurrences
+
+DeprecationWarning: datetime.datetime.utcfromtimestamp() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.fromtimestamp(timestamp, datetime.UTC).
+
+| Package | Count |
+|---------|-------|
+| `invenio-banners` | 1 |
+| `invenio-github` | 1 |
+| `invenio-pages` | 1 |
+
+#### Warning 9 - 3 occurrences
+
+FutureWarning: CSRF validation will be enabled by default in the version 1.3.x
+
+| Package | Count |
+|---------|-------|
+| `invenio-banners` | 1 |
+| `invenio-github` | 1 |
+| `invenio-pages` | 1 |
+
+#### Warning 10 - 2 occurrences
 
 DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('fs.opener')`.
 
@@ -64,7 +96,7 @@ DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('fs.open
 | `invenio-banners` | 1 |
 | `invenio-pages` | 1 |
 
-#### Warning 8 - 2 occurrences
+#### Warning 11 - 2 occurrences
 
 DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('sphinxcontrib')`.
 
@@ -73,7 +105,7 @@ DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('sphinxc
 | `invenio-banners` | 1 |
 | `invenio-pages` | 1 |
 
-#### Warning 9 - 2 occurrences
+#### Warning 12 - 2 occurrences
 
 DeprecationWarning: Link is deprecated and will be removed in v14.0. Use `ExternalLink` for third-party links and `EndpointLink` for InvenioRDM links.
 
@@ -82,7 +114,7 @@ DeprecationWarning: Link is deprecated and will be removed in v14.0. Use `Extern
 | `invenio-banners` | 1 |
 | `invenio-pages` | 1 |
 
-#### Warning 10 - 2 occurrences
+#### Warning 13 - 2 occurrences
 
 DeprecationWarning: The '__version_info__' attribute is deprecated and will be removed in in a future version. Use feature detection or 'packaging.Version(importlib.metadata.version("marshmallow")).release' instead.
 
@@ -91,25 +123,7 @@ DeprecationWarning: The '__version_info__' attribute is deprecated and will be r
 | `invenio-banners` | 1 |
 | `invenio-pages` | 1 |
 
-#### Warning 11 - 2 occurrences
-
-DeprecationWarning: Using the initialization functions in flask_caching.backend is deprecated.  Use the a full path to backend classes directly.
-
-| Package | Count |
-|---------|-------|
-| `invenio-banners` | 1 |
-| `invenio-pages` | 1 |
-
-#### Warning 12 - 2 occurrences
-
-DeprecationWarning: datetime.datetime.utcfromtimestamp() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.fromtimestamp(timestamp, datetime.UTC).
-
-| Package | Count |
-|---------|-------|
-| `invenio-banners` | 1 |
-| `invenio-pages` | 1 |
-
-#### Warning 13 - 2 occurrences
+#### Warning 14 - 2 occurrences
 
 DeprecationWarning: get_user method is deprecated, user get_user_by_email/get_user_by_id
 
@@ -118,18 +132,9 @@ DeprecationWarning: get_user method is deprecated, user get_user_by_email/get_us
 | `invenio-banners` | 1 |
 | `invenio-pages` | 1 |
 
-#### Warning 14 - 2 occurrences
-
-DeprecationWarning: jsonschema.exceptions.RefResolutionError is deprecated as of version 4.18.0. If you wish to catch potential reference resolution errors, directly catch referencing.exceptions.Unresolvable.
-
-| Package | Count |
-|---------|-------|
-| `invenio-banners` | 1 |
-| `invenio-pages` | 1 |
-
 #### Warning 15 - 2 occurrences
 
-FutureWarning: CSRF validation will be enabled by default in the version 1.3.x
+DeprecationWarning: jsonschema.exceptions.RefResolutionError is deprecated as of version 4.18.0. If you wish to catch potential reference resolution errors, directly catch referencing.exceptions.Unresolvable.
 
 | Package | Count |
 |---------|-------|
