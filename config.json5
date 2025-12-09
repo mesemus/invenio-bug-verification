@@ -4,6 +4,10 @@
         "invenio-records-resources": {
             "git": "https://github.com/max-moser/invenio-records-resources.git",
             "branch": "mm/failed-file-upload-cleanup"
+        },
+        "invenio-rdm-records": {
+            "git": "https://github.com/max-moser/invenio-rdm-records.git",
+            "branch": "mm/revert-file-test"
         }
     },
     "run_original_tests": true,
