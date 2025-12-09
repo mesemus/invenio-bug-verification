@@ -1,8 +1,8 @@
 # Invenio Bugfix Verification Results
 
-> **⏳ Status: Running** - This report is being updated as tests complete.
+> **✅ Status: Complete** - All tests have finished running.
 
-_Last updated: 2025-12-09 14:41:29 UTC_
+_Last updated: 2025-12-09 14:41:58 UTC_
 
 ## 📊 Overall Status
 
